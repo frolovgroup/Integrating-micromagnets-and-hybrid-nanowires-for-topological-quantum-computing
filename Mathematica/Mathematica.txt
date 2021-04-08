@@ -1,1 +1,2 @@
-Mathematica - Lab computer
+Mathematica - The Draogonfly file is shorter and has more details on what is happening. The AllData file is used to plot all data by chosing options and commneting 
+things in or out/

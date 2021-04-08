@@ -1,0 +1,537 @@
+//Malcolm Jardine - 08_20 - MuMax3 code to run micromagentic simulations of micromagets with a hexagonal nanowire in single Dragonfly set-up 
+// The code defines the hexagonal nanowire structure (by creating cyclinder and taking cuboid chunks out of it), defines magnet shapes, and then simulation box. 
+// Then the magnet material parameters are defined, hysteresis is performed and the field in the nanowire chunks (about the length of the cellsize) found.
+// The magnets can be started in some initial state and used, or started in a random state and have hysteresis performed on them to obtain the desrired final state.
+
+start := now() //starting timer
+
+
+//////////////////////////////////// CREATING WIRE'S SHAPES ////////////////////////////////////
+
+//Dimensions of wire
+wire_diameter := 100e-9		 //how thick the wire is across diagonnal
+length_wire := 900e-9 //defining the wire length
+x_trans_system := 350e-9 // shifts whole system left or right
+y_trans_system := 0 //y displacement of whole system 
+
+
+					////////////////////////// TOP WIRE ///////////////////////////					
+//Shapes to create a hexagon out of a cylinder
+x_trans_hex := cos(30*pi/180)*wire_diameter/2+wire_diameter/4 +x_trans_system	//To make sure that sides of cuboids are attached to side of hexagon. I.e. edge of cuboid removed is on circle, not center
+
+wire_cylinder :=  Cylinder(wire_diameter, length_wire).RotY(-90*pi/180).Transl(x_trans_system,y_trans_system,0) // whole cylider of wire
+//Taking chunks out of initial wire cylider, by rotating cuboids to cut out 6 pieces of cylider to make hexagon
+f := Cuboid(wire_diameter/2, wire_diameter/2, length_wire).Transl(x_trans_hex, y_trans_system, 0).RotZ(-60*pi/180).RotY(-90*pi/180)
+g := Cuboid(wire_diameter/2, wire_diameter/2, length_wire).Transl(x_trans_hex, y_trans_system, 0).RotZ(-120*pi/180).RotY(-90*pi/180)
+h := Cuboid(wire_diameter/2, wire_diameter/2, length_wire).Transl(x_trans_hex, y_trans_system, 0).RotZ(-180*pi/180).RotY(-90*pi/180)
+i := Cuboid(wire_diameter/2, wire_diameter/2, length_wire).Transl(x_trans_hex, y_trans_system, 0).RotZ(-240*pi/180).RotY(-90*pi/180)
+k := Cuboid(wire_diameter/2, wire_diameter/2, length_wire).Transl(x_trans_hex, y_trans_system, 0).RotZ(-300*pi/180).RotY(-90*pi/180)
+l := Cuboid(wire_diameter/2, wire_diameter/2, length_wire).Transl(x_trans_hex, y_trans_system, 0).RotZ(-0*pi/180).RotY(-90*pi/180)
+
+
+
+//////////////////////////////////// MAGNETS dimensions and position ////////////////////////////////////%%%%%%%%
+
+device_distance := 40e-9 		     //small distance wire is from magnets
+
+
+////////////////////////// ANGLED MAGNETS
+
+//Dimensions of bar magnet
+zb := 100e-9       // this is height of magents
+xb_thin := 130e-9
+yb_thin := 1200e-9
+
+// chosing how long magnets are from center of wire
+x_c_Far := 900e-9
+x_c_Close := 250e-9
+
+
+xb_thick := 250e-9
+yb_thick := 1200e-9
+
+
+/////Placing magnets top row, left to right, bottom row, left to right.
+
+	
+	x_c_thick_angle_extra := 0e-9 //might need to shift magents so the magnetic profiles line up
+	x_c_thin_angle_extra := 0e-9//-40e-9
+	mag_extra_y := 0 // for shifting mag 2 up a bit
+	
+	ang_rot1 := 45 //angle of rotation for magnets Top wire magnets
+	
+	x_ct_ang_thick := sin(ang_rot1 *pi/180)*(yb_thick/2) + x_c_thick_angle_extra //+ wire_diameter/2  //this lines up center with magnet above
+	y_ct_ang_thick := cos(ang_rot1 *pi/180)*(yb_thick/2) + sin(ang_rot1 *pi/180)*xb_thick/2 + wire_diameter/2 + device_distance //this puts highest edge of mag on wire + device_distance
+	x_ct_ang_thin := sin(ang_rot1 *pi/180)*(yb_thin/2) + x_c_thin_angle_extra //+ wire_diameter/2 //this lines up center with magnet above
+	y_ct_ang_thin := cos(ang_rot1 *pi/180)*(yb_thin/2) + sin(ang_rot1 *pi/180)*xb_thin/2 + wire_diameter/2 + device_distance //this puts highest edge of mag on wire + device_distance
+
+
+	mag1 := Cuboid(xb_thin, yb_thin, zb).RotZ(ang_rot1 *pi/180).Transl((-x_ct_ang_thin - x_c_Close+x_trans_system+00e-9), (y_ct_ang_thin+y_trans_system), 0)
+	mag2 := Cuboid(xb_thick, yb_thick, zb).RotZ(ang_rot1 *pi/180).Transl((-x_ct_ang_thick + x_c_Close+x_trans_system-0e-9), (y_ct_ang_thick+y_trans_system+mag_extra_y), 0) 
+
+	mag3 := Cuboid(xb_thick, yb_thick, zb).RotZ(-ang_rot1 *pi/180).Transl((-x_ct_ang_thick - x_c_Close+x_trans_system+00e-9), (-y_ct_ang_thick+y_trans_system), 0) //left one
+	mag4 := Cuboid(xb_thin, yb_thin, zb).RotZ(-ang_rot1 *pi/180).Transl((-x_ct_ang_thin + x_c_Close+x_trans_system+0e-9), (-y_ct_ang_thin+y_trans_system), 0) //right one
+
+
+
+//////////////////////////////////// SIMULATION BOX DIMESIONS AND PARTITIONING ////////////////////////////////////%%%%%%%%
+// The size of the simulation box depends on the size of the magnets
+
+extra_simBox_width_mags_x := 2*sin(ang_rot1 *pi/180)*(yb_thick/2)  // this is the extra width the sim box size needs to be due to things like magnets in the x direction. Picking out largest magnet so they both definetely fit as simulation box is defined symmetrical (everything is in centered around middle)
+extra_simBox_width_mags_y := 2*max(yb_thin, yb_thick) //this is the extra width the sim box size needs to be due to things like magnets in the y direction
+
+
+//want number of grid points to define cell size for compuational speed. Power of 2 is best
+
+Grid_X 	 	:= length_wire + extra_simBox_width_mags_x +80e-9	//length of x direction (wire + magnets)
+//N_x			:= 512
+N_x			:= 256				//number of chunks Grid_X direction is split up into
+cellsize_x  := Grid_X/N_x 			//THIS is size of x direction chunks
+print(Grid_X)
+print(cellsize_x)
+
+Grid_Y 	 	:= wire_diameter + extra_simBox_width_mags_y +2*device_distance -200e-9   //actual length y direction needs to be. 2 long magnet lengths + wire width + extra distance. wire_length isnt multiplied by 2 as 
+//N_y := 64			
+N_y := 256	 
+cellsize_y := Grid_Y/N_Y				//y cell size
+print(Grid_Y)
+print(cellsize_y)
+
+Grid_Z 	 	:= wire_diameter //actual length z direction needs to be. Assuming wire width is the biggest of z widths (wider than magnet)
+//N_z := 16 
+N_z := 16							// 
+cellsize_z := Grid_Z/N_z				//z cell size
+print(cellsize_z)
+
+SetGridsize(N_x, N_y, N_z)
+SetCellsize(cellsize_x, cellsize_y, cellsize_z)
+
+//////////////////////////////////// SETTING GEOMETRY ////////////////////////////////////%%%%%%%%
+//// This is where we chose what magnets will be used in the simulation by "add()" them in
+// NOTE: Dont add magenets first, this means that if there is any overlap between the part of the wire we delete, this will delete the magnets as well.  
+        
+		SetGeom(wire_cylinder.sub(f).sub(g).sub(h).sub(i).sub(k).sub(l).add(mag1).add(mag2).add(mag3).add(mag4)) //4 magnets
+	
+	saveas(geom, "SetUp")
+
+//////////////////////////////////// set ferromagnets REGION properties ////////////////////////////////////%%%%%%%%
+				/////////////////////////// Magnets ///////////////////
+	
+////////////// Magent Parameters ///////////
+	
+	// saturation value (maximum magnetization with applied field - [A/m]) 
+	Msat_val := 1.44e6 // Cobalt
+	//Msat_val := 1.75e6 // Iron
+	
+	//exchange_stiffness (explantion - [J/m])
+	Aex_magnets_value := 3.0e-11 //Cobalt
+	//Aex_magnets_value := 2.1e-11 //Iron    
+	
+	//Anisotropy constants (a measure of how different the longitudinal magnetization is to the transverse mag compared to the crystals prefered axes - [J/m^3])
+	// cubic and hexagonal crytals (Fe and Cobalt) materials have two values
+	K1_anisotropy_constant := 4.5e5 //Cobalt
+	//K1_anisotropy_constant := 4.7e4 //Iron   
+	K2_anisotropy_constant := 1.5e5 //Cobalt
+	//K2_anisotropy_constant := 2.0e4 //Iron
+	
+	//Landau-Lifshitz damping constant - alpha (reveals the dissipation speed in the ferromagnetic material - [no unit])
+	//damping_constant := 0.01 //Cobalt
+	damping_constant := 0.01 //Iron   can be 0.1 to 0.01 for Fe, Co, Ni metals or alloys
+	
+	// %%%%%%%%%%%%%%%%%%%%%%%%%%%%%% ANGLED MAGNETS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+	
+////////////// Magent magnetization directions ///////////
+	// magnets are defined in chunks of 4 for each piece of wire they mainly surround. 
+	// Start at top left, moving right one, then bottom left on that piece of wire, move right one again
+	
+	External_Field_vector := vector(0, 0, 0) // initializing external magnetic field to be zero. Initializinng magnet identification numbers
+	mag_region_number1 := 0 // initializing
+	mag_region_number2 := 0 // initializing
+	mag_region_number3 := 0 // initializing
+	mag_region_number4 := 0 // initializing
+
+ 
+			//if usemag4_condition == 1 {
+			
+					//defining initial magnetization or using this for hysteresis
+	mag_region_number1_magnetization  := randomMag()
+	mag_region_number2_magnetization  := randomMag()
+	mag_region_number3_magnetization  := randomMag()
+	mag_region_number4_magnetization  := randomMag() //
+
+	
+	// set a prefered diection of magnetization due to lattice structure
+	mag_region_number1_anisUVector :=  vector(-sin(ang_rot1 *pi/180), cos(ang_rot1 *pi/180), 0)
+	mag_region_number2_anisUVector :=  vector(sin(ang_rot1 *pi/180), -cos(ang_rot1 *pi/180), 0)
+	mag_region_number3_anisUVector :=  vector(sin(ang_rot1 *pi/180), cos(ang_rot1 *pi/180), 0)
+	mag_region_number4_anisUVector :=  vector(sin(ang_rot1 *pi/180), cos(ang_rot1 *pi/180), 0)
+	
+			relax_condition := 1 // determines if the system relaxes or not
+
+	
+	setInitialMagnetization_condition :=0
+	if setInitialMagnetization_condition == 1 { //dont use random initial magnetization and manually set it
+	
+		mag_region_number1_magnetization  = Uniform(-sin(ang_rot1 *pi/180), cos(ang_rot1 *pi/180), 0)
+		mag_region_number2_magnetization  = Uniform(sin(ang_rot1 *pi/180), -cos(ang_rot1 *pi/180), 0)
+		mag_region_number3_magnetization  = Uniform(-sin(ang_rot1 *pi/180), -cos(ang_rot1 *pi/180), 0)
+		mag_region_number4_magnetization  = Uniform(sin(ang_rot1 *pi/180), cos(ang_rot1 *pi/180), 0) //
+
+	}
+				
+				mag_region_number1 = 21
+		DefRegion(mag_region_number1, mag1)
+        m.SetRegion(mag_region_number1, mag_region_number1_magnetization)
+        Msat.SetRegion(mag_region_number1, Msat_val)
+        Aex.SetRegion(mag_region_number1, Aex_magnets_value)
+        anisU.SetRegion(mag_region_number1, mag_region_number1_anisUVector)
+        Ku1.SetRegion(mag_region_number1, K1_anisotropy_constant)
+        Ku2.SetRegion(mag_region_number1, K2_anisotropy_constant)
+        alpha.SetRegion(mag_region_number1, damping_constant)
+		
+				mag_region_number2 = 22
+		DefRegion(mag_region_number2, mag2)
+        m.SetRegion(mag_region_number2, mag_region_number2_magnetization)
+        Msat.SetRegion(mag_region_number2, Msat_val)
+        Aex.SetRegion(mag_region_number2, Aex_magnets_value)
+        anisU.SetRegion(mag_region_number2, mag_region_number2_anisUVector)
+        Ku1.SetRegion(mag_region_number2, K1_anisotropy_constant)
+        Ku2.SetRegion(mag_region_number2, K2_anisotropy_constant)
+        alpha.SetRegion(mag_region_number2, damping_constant)
+		
+		
+						mag_region_number4 = 24
+		DefRegion(mag_region_number4, mag4)
+        m.SetRegion(mag_region_number4, mag_region_number4_magnetization)
+        Msat.SetRegion(mag_region_number4, Msat_val)
+        Aex.SetRegion(mag_region_number4, Aex_magnets_value)
+        anisU.SetRegion(mag_region_number4, mag_region_number4_anisUVector)
+        Ku1.SetRegion(mag_region_number4, K1_anisotropy_constant)
+        Ku2.SetRegion(mag_region_number4, K2_anisotropy_constant)
+        alpha.SetRegion(mag_region_number4, damping_constant)
+		
+				mag_region_number3 = 23
+		DefRegion(mag_region_number3, mag3)
+        m.SetRegion(mag_region_number3, mag_region_number3_magnetization)
+        Msat.SetRegion(mag_region_number3, Msat_val)
+        Aex.SetRegion(mag_region_number3, Aex_magnets_value)
+        anisU.SetRegion(mag_region_number3, mag_region_number3_anisUVector)
+        Ku1.SetRegion(mag_region_number3, K1_anisotropy_constant)
+        Ku2.SetRegion(mag_region_number3, K2_anisotropy_constant)
+        alpha.SetRegion(mag_region_number3, damping_constant)
+	
+		
+	
+
+
+saveas(regions, "Magnets") //save only magent regions
+saveas(anisU, "region_Uniaxial_anisotropy_direction") //save Uniaxial anisotropy directions of magnets
+
+						/////////////////////////// NANOWIRE ////////////////////////
+
+		
+			//Whole TOP nanowire
+			region_number_WIRE_TOP := 2
+        DefRegion(region_number_WIRE_TOP, wire_cylinder.sub(f).sub(g).sub(h).sub(i).sub(k).sub(l))
+        m.SetRegion(region_number_WIRE_TOP, Uniform(0,0,0))
+        Msat.SetRegion(region_number_WIRE_TOP, 0)
+        Aex.SetRegion(region_number_WIRE_TOP, 0)
+        anisU.SetRegion(region_number_WIRE_TOP, vector(0, 0, 0))
+        Ku1.SetRegion(region_number_WIRE_TOP, 0)
+        Ku2.SetRegion(region_number_WIRE_TOP, 0)
+		
+
+
+//////////////////////////////////// RELAX ////////////////////////////////////
+
+//print(cellsize_x)
+//print(cellsize_y)
+//print(cellsize_z)
+	saveas(m, "Initial_magnetization")
+	
+		if relax_condition == 1 {
+		relax() // finding minimum energy state
+		saveas(m, "Initial_Relaxed_magnetization") //save magnetization state of magnnet after relaxtion
+	}
+
+	
+	//////////////////////////////////// TABLE ADD DATA ////////////////////////////////////%%%%%%%%
+
+
+count_min := 0e-9
+count_max := length_wire //
+step_x := count_min 	//setting initial value
+step_y := wire_diameter 	//setting initial value (for y direction starts at wire width out)
+counter := 0 			//setting initial value for dmag field calculation
+
+
+TableAdd(m.Region(mag_region_number1)) //calculating component of magnetization in a region (0=x,1=y,2=z)
+TableAdd(m.Region(mag_region_number2))
+TableAdd(m.Region(mag_region_number3))
+TableAdd(B_ext)
+
+TableAdd(B_eff.Region(6)) //B_eff calculates the relaxed steady state magnetic field averaged over a given region with external field
+//TableAdd(B_demag.Region(6)) //B_demag calculates the relaxed steady state magnetic field averaged over a given region
+TableAddVar(step_x, "step_x", "No unit") //positions of the left edge of the region the magnetic field is avergaed over
+
+// B_eff calculates the total field
+
+//////////////////////////////////// Hysteresis calculation ////////////////////////////////////%%%%%%%%
+
+often_save := 6 //how often we save during loop
+
+Bmax_strong  := 500.0e-3
+Bstep_strong := 10e-3 //5.0e-3
+Bmax_win_big  := 450e-3 //window
+Bmax_win_small  := 340e-3 //window
+Bstep_win :=  1*3.0e-3 //1e-3
+MinimizerStop = 1e-6
+counter222 :=0
+
+
+BextLeftUp_Sweep_condition :=1  //sweeps from B=0 to positve B_window_strong in -ve x direction and +ve y direction
+if BextLeftUp_Sweep_condition == 1 {
+
+	counter222 =0
+	for B:=0.0; B<=Bmax_win_big; B+=Bstep_win{
+		B_ext = vector(-B*sin(ang_rot1 *pi/180), B*cos(ang_rot1 *pi/180), 0)
+		if relax_condition == 1 {
+			minimize()   // small changes best minimized by minimize()
+		}
+		tablesave()
+		counter222 = counter222 + 1
+	
+		save_condition := remainder(counter222, often_save) //after num loops the if statement will act (uses when remainder is 0
+		if save_condition == 0 {
+			save(m)
+			print(100*counter222/(Bmax_win_big/(Bstep_win))) //precent complete
+		}
+			
+	}
+	print("sweeps from B=0 to positve B_window_strong in -ve x direction and +ve y direction complete")
+		
+	counter222 =0
+	for B:=Bmax_win_big; B>=0; B-=Bstep_win{
+		B_ext = vector(-B*sin(ang_rot1 *pi/180), B*cos(ang_rot1 *pi/180), 0)
+		if relax_condition == 1 {
+			minimize()   // small changes best minimized by minimize()
+		}
+		tablesave()
+		counter222 = counter222 + 1
+		save_condition := remainder(counter222, often_save) //after num loops the if statement will act (uses when remainder is 0
+		if save_condition == 0 {
+			save(m)
+			print(100*counter222/(Bmax_win_big/(Bstep_win))) //precent complete
+		}
+			
+		}
+		print("Back to 0 complete")
+	}//sweeps from B=0 to positve B_window_strong in -ve x direction and +ve y direction
+
+		/////////////////////////////////////////////////////////////////////////////
+BextRightUp_Sweep_condition :=1  //sweeps from B=0 to positve B_window_strong in +ve x direction and +ve y direction
+if BextRightUp_Sweep_condition == 1 {
+
+	counter222 =0
+	for B:=0.0; B<=Bmax_win_big; B+=Bstep_win{
+		B_ext = vector(B*sin(ang_rot1 *pi/180), B*cos(ang_rot1 *pi/180), 0)
+		if relax_condition == 1 {
+			minimize()   // small changes best minimized by minimize()
+		}
+		tablesave()
+		counter222 = counter222 + 1
+	
+		save_condition := remainder(counter222, often_save) //after num loops the if statement will act (uses when remainder is 0
+		if save_condition == 0 {
+			save(m)
+			print(100*counter222/(Bmax_win_big/(Bstep_win))) //precent complete
+		}
+			
+	}
+	print("sweeps from B=0 to positve B_window_strong in +ve x direction and +ve y direction complete")
+		
+	counter222 =0
+	for B:=Bmax_win_big; B>=0; B-=Bstep_win{
+		B_ext = vector(B*sin(ang_rot1 *pi/180), B*cos(ang_rot1 *pi/180), 0)
+		if relax_condition == 1 {
+			minimize()   // small changes best minimized by minimize()
+		}
+		tablesave()
+		counter222 = counter222 + 1
+		save_condition := remainder(counter222, often_save) //after num loops the if statement will act (uses when remainder is 0
+		if save_condition == 0 {
+			save(m)
+			print(100*counter222/(Bmax_win_big/(Bstep_win))) //precent complete
+		}
+			
+		}
+		print("Back to 0 complete")
+	} //sweeps from B=0 to positve B_window_strong in +ve x direction and +ve y direction
+
+
+/////////////////////////////////////////////////////////////////////////////
+	BextRightDown_Sweep_condition :=1  //sweeps from B=0 to positve Bmax_win_small in +ve x direction and -ve y direction
+	if BextRightDown_Sweep_condition == 1 {
+	
+	counter222 =0
+	for B:=0.0; B<=Bmax_win_small; B+=Bstep_win{
+		B_ext = vector(B*sin(ang_rot1 *pi/180), -B*cos(ang_rot1 *pi/180), 0)
+		if relax_condition == 1 {
+			minimize()   // small changes best minimized by minimize()
+		}
+		tablesave()
+		counter222 = counter222 + 1
+	
+		save_condition := remainder(counter222, often_save) //after num loops the if statement will act (uses when remainder is 0
+		if save_condition == 0 {
+			save(m)
+			print(100*counter222/(Bmax_win_big/(Bstep_win))) //precent complete
+		}
+			
+	}
+	print("sweeps from B=0 to positve B_window_strong in +ve x direction and -ve y direction complete")
+		
+	counter222 =0
+	for B:=Bmax_win_small; B>=0; B-=Bstep_win{
+		B_ext = vector(B*sin(ang_rot1 *pi/180), -B*cos(ang_rot1 *pi/180), 0)
+		if relax_condition == 1 {
+			minimize()   // small changes best minimized by minimize()
+		}
+		tablesave()
+		counter222 = counter222 + 1
+		save_condition := remainder(counter222, often_save) //after num loops the if statement will act (uses when remainder is 0
+		if save_condition == 0 {
+			save(m)
+			print(100*counter222/(Bmax_win_big/(Bstep_win))) //precent complete
+		}
+			
+		}
+		print("Back to 0 complete")
+	} //sweeps from B=0 to positve B_window_strong in +ve x direction and -ve y direction
+
+/////////////////////////////////////////////////////////////////////////////
+	BextLeftDown_Sweep_condition :=1  //sweeps from B=0 to positve Bmax_win_small in -ve x direction and -ve y direction
+	if BextLeftDown_Sweep_condition == 1 {
+	
+	counter222 =0
+	for B:=0.0; B<=Bmax_win_small; B+=Bstep_win{
+		B_ext = vector(-B*sin(ang_rot1 *pi/180), -B*cos(ang_rot1 *pi/180), 0)
+		if relax_condition == 1 {
+			minimize()   // small changes best minimized by minimize()
+		}
+		tablesave()
+		counter222 = counter222 + 1
+	
+		save_condition := remainder(counter222, often_save) //after num loops the if statement will act (uses when remainder is 0
+		if save_condition == 0 {
+			save(m)
+			print(100*counter222/(Bmax_win_big/(Bstep_win))) //precent complete
+		}
+			
+	}
+	print("sweeps from B=0 to positve B_window_strong in -ve x direction and -ve y direction complete")
+		
+	counter222 =0
+	for B:=Bmax_win_small; B>=0; B-=Bstep_win{
+		B_ext = vector(-B*sin(ang_rot1 *pi/180), -B*cos(ang_rot1 *pi/180), 0)
+		if relax_condition == 1 {
+			minimize()   // small changes best minimized by minimize()
+		}
+		tablesave()
+		counter222 = counter222 + 1
+		save_condition := remainder(counter222, often_save) //after num loops the if statement will act (uses when remainder is 0
+		if save_condition == 0 {
+			save(m)
+			print(100*counter222/(Bmax_win_big/(Bstep_win))) //precent complete
+		}
+			
+		}
+		print("Back to 0 complete")
+	} //sweeps from B=0 to positve B_window_strong in -ve x direction and -ve y direction
+	
+
+
+//////////////////////////////////// calculating DEMAGNETIZATION FIELD ////////////////////////////////////%%%%%%%%
+
+						///////////////////////// TOP ////////////////////////
+						
+	    //Bmax  := 0
+        //B_ext = External_Field_vector
+		B_ext = vector(0, 0, 0) //setting field to excactly zero after hysteresis
+						
+//print(cellsize_x)
+xmin := -length_wire/2 //as the 0 of the wire is defined in the middle of the simulation box
+xmax := length_wire/2
+
+//zzz is going 0,10,20, or steps of cellsize x. We avergae magnetic field over cellsize x chunks
+// wire is broken up into number of points such that the size of each chunk is always a little bit smaller than cellsize_x. It starts and ends at start and end of wire
+	points_TOP_wire := Ceil(length_wire/cellsize_x)	// number of points leg wire is broken up into. Round up so chunk we average over is always a little bit smaller
+	print(points_TOP_wire)
+
+	size_stepAndChunk_x := length_wire/Ceil(length_wire/cellsize_x) // wire is broken up into number of chunks, this is the size
+	print(size_stepAndChunk_x)
+	
+for zzz:=0; zzz<=(points_TOP_wire-1); zzz++{ //zzz goes from 0 to points_TOP_wire -1 because it has a width so we dont need to move the averaging chunk points_TOP_wire time
+        step_x = size_stepAndChunk_x*zzz //converts our index for loop to width we need for each section
+		counter = counter + 1 //countig how many loops we have ran
+		//print(zzz)
+		//print(100*zzz/count_max) //precent complete
+		length_left_part := step_x //bit of nanowire to left of averaging over chunk
+        length_right_part := length_wire-step_x-size_stepAndChunk_x //bit of nanowire to right of averaging over chunk
+        x_trans_left_part := xmin+step_x/2 + x_trans_system
+        x_trans_right_part := step_x/2+size_stepAndChunk_x/2 + x_trans_system
+        x_trans_cross_section := xmin+step_x+size_stepAndChunk_x/2 + x_trans_system
+        c := Cylinder(wire_diameter, length_left_part).RotY(-90*pi/180).Transl((x_trans_left_part),y_trans_system,0)
+        d := Cylinder(wire_diameter, length_right_part).RotY(-90*pi/180).Transl((x_trans_right_part),y_trans_system,0)
+        cross_section := Cylinder(wire_diameter, size_stepAndChunk_x).RotY(-90*pi/180).Transl((x_trans_cross_section),y_trans_system,0)
+
+
+        //Left part of nanowire
+        DefRegion(4, c.sub(f).sub(g).sub(h).sub(i).sub(k).sub(l))
+        //m.SetRegion(4, Uniform(0,0,0))
+        //Msat.SetRegion(4, 0)
+        //Aex.SetRegion(4, 0)
+        //anisU.SetRegion(4, vector(0, 0, 0))
+        //Ku1.SetRegion(4, 0)
+        //Ku2.SetRegion(4, 0)
+
+        //Right part of nanowire
+        DefRegion(5, d.sub(f).sub(g).sub(h).sub(i).sub(k).sub(l))
+        //m.SetRegion(5, Uniform(0,0,0))
+        //Msat.SetRegion(5, 0)
+        //Aex.SetRegion(5, 0)
+        //anisU.SetRegion(5, vector(0, 0, 0))
+        //Ku1.SetRegion(5, 0)
+        //Ku2.SetRegion(5, 0)
+
+        //Center part of nanowire (where we average over)
+        DefRegion(6, cross_section.sub(f).sub(g).sub(h).sub(i).sub(k).sub(l))
+        //m.SetRegion(6, Uniform(0,0,0))
+        //Msat.SetRegion(6, 0)
+        //Aex.SetRegion(6, 0)
+        //anisU.SetRegion(6, vector(0, 0, 0))
+        //Ku1.SetRegion(6, 0)
+        //Ku2.SetRegion(6, 0)
+
+		
+		save_condition := remainder(counter, 5) //after num loops the if statement will act (uses when remainder is 0
+		if save_condition == 0 {
+			//save(regions)
+		}
+
+        tablesave()
+        //save(m)
+        //save(B_demag)
+		print(counter)
+}
+
+
+Time_elapsed := since(start).Seconds() //stopping timer
+// Floor to get number of minutes from seconds and remainder finds number of seconds after the minute
+print("Running time of", Floor(Time_elapsed/60), "minutes and ", remainder(Time_elapsed, 60), "seconds" )
+//print(Time_elapsed)
+// if it goes above half way (30 seconds) then it displays a neagtive number for some reason
+
+print(cellsize_x)
+print(cellsize_y)
+print(cellsize_z)

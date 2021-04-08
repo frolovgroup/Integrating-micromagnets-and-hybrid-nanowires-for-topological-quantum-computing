@@ -1,0 +1,289 @@
+//output directory: C:\Program Files\mumax3.9.1_windows\RunFiles\FieldAbove_1mag.out/
+start := now()
+wire_diameter := 100e-9
+length_wire := 780e-9
+x_trans := cos(30*pi/180)*wire_diameter/2 + wire_diameter/4
+y_trans_wire := 0
+length_wire_LEG := length_wire / 2
+y_trans_wire_LEG := -(wire_diameter/2 + length_wire_LEG/2)
+wire_LEG_cylinder := Cylinder(wire_diameter, length_wire_LEG).RotX(-90*pi/180).Transl(0, y_trans_wire_LEG, 0)
+device_distance := 50e-9
+zb := 100e-9
+usemag_STAR_condition := 1
+size_increase := 1
+xb := 230e-9
+yb := 1000e-9
+x_ct_STAR_L := 0
+distance_above := 0
+mag13 := Cuboid(xb, yb, zb).rotz(0*pi/180).Transl(0, 000e-9, distance_above)
+mag14 := Cuboid(0, 0, 0).Transl(300e-9, 0, distance_above).rotz(0 * pi / 180)
+extra_simBox_width_mags_y := yb
+Grid_X := xb + 200e-9
+N_x := 128
+cellsize_x := Grid_X / N_x
+print(cellsize_x)
+//3.359375e-09
+Grid_Y := yb + 300e-9
+N_y := 256
+cellsize_y := Grid_Y / N_Y
+print(cellsize_y)
+//5.078124999999999e-09
+Grid_Z := 1*zb + 0*device_distance + 10e-9
+N_z := 16
+cellsize_z := Grid_Z / N_z
+print(cellsize_z)
+//6.8749999999999995e-09
+SetGridsize(N_x, N_y, N_z)
+SetCellsize(cellsize_x, cellsize_y, cellsize_z)
+SetGeom(mag13)
+saveas(geom, "SetUp")
+Msat_val := 1.44e6
+Aex_magnets_value := 3.0e-11
+K1_anisotropy_constant := 4.5e5
+K2_anisotropy_constant := 1.5e5
+damping_constant := 0.01
+External_Field_vector := vector(0, 0, 0)
+mag_region_number13 := 0
+mag_region_number14 := 0
+mag_region_number1 := 0
+mag_region_number2 := 0
+mag_region_number1_magnetization := randomMag()
+mag_region_number2_magnetization := randomMag()
+mag_region_number1_anisUVector := vector(0, 1, 0)
+mag_region_number2_anisUVector := vector(-1, 0, 0)
+setInitialMagnetization_condition := 1
+if setInitialMagnetization_condition == 1 {
+	mag_region_number1_magnetization = Uniform(0, 1, 0)
+	mag_region_number2_magnetization = Uniform(0, 0, 0)
+}
+mag_region_number1 = 1
+DefRegion(mag_region_number1, mag13)
+m.SetRegion(mag_region_number1, mag_region_number1_magnetization)
+Msat.SetRegion(mag_region_number1, Msat_val)
+Aex.SetRegion(mag_region_number1, Aex_magnets_value)
+anisU.SetRegion(mag_region_number1, mag_region_number1_anisUVector)
+Ku1.SetRegion(mag_region_number1, K1_anisotropy_constant)
+Ku2.SetRegion(mag_region_number1, K2_anisotropy_constant)
+alpha.SetRegion(mag_region_number1, damping_constant)
+mag_region_number2 = 2
+DefRegion(mag_region_number2, mag14)
+m.SetRegion(mag_region_number2, mag_region_number2_magnetization)
+Msat.SetRegion(mag_region_number2, Msat_val)
+Aex.SetRegion(mag_region_number2, Aex_magnets_value)
+anisU.SetRegion(mag_region_number2, mag_region_number2_anisUVector)
+Ku1.SetRegion(mag_region_number2, K1_anisotropy_constant)
+Ku2.SetRegion(mag_region_number2, K2_anisotropy_constant)
+alpha.SetRegion(mag_region_number2, damping_constant)
+saveas(m, "Initial_magnetization")
+saveas(regions, "Magnets")
+saveas(anisU, "region_Uniaxial_anisotropy_direction")
+print(cellsize_x)
+//3.359375e-09
+print(cellsize_y)
+//5.078124999999999e-09
+print(cellsize_z)
+//6.8749999999999995e-09
+relax_condition := 0
+if relax_condition == 1 {
+	relax()
+	saveas(m, "Initial_Relaxed_magnetization")
+}
+count_min := 0e-9
+count_max := length_wire
+step_x := count_min
+step_y := 0.0
+counter := 0
+TableAdd(m.Region(mag_region_number1))
+TableAdd(B_ext)
+TableAddVar(step_x, "step_x", "No unit")
+TableAddVar(step_y, "step_y", "No unit")
+TableAddVar(-(distance_above + zb/2), "distance_above", "No unit")
+for ppp := 0; ppp <= (2); ppp += 1 {
+	for vvv := 5; vvv <= (225 + 5); vvv += 1 {
+		TableAdd(B_eff.Comp(ppp).Region(vvv))
+	}
+}
+counter222 := 0
+Bmax_strong := 900.0e-3
+Bstep_strong := 10e-3
+Bmax_win := 900.0e-3
+Bstep_win := 10.0e-3
+MinimizerStop = 1e-6
+often_save := 8
+HysteresisX_condition := 0
+if HysteresisX_condition == 1 {
+	for B := 0.0; B <= Bmax_strong; B += Bstep_strong {
+		B_ext = vector(B, 0, 0)
+		minimize()
+		tablesave()
+		counter222 = counter222 + 1
+		save_condition := remainder(counter222, often_save)
+		if save_condition == 0 {
+			save(m)
+		}
+		print(100 * B / Bmax_strong)
+	}
+	print("Strong sweep step 1 complete")
+	counter222 = 0
+	for B := Bmax_strong; B >= Bmax_win; B -= Bstep_strong {
+		B_ext = vector(B, 0, 0)
+		minimize()
+		tablesave()
+		counter222 = counter222 + 1
+		save_condition := remainder(counter222, often_save)
+		if save_condition == 0 {
+			save(m)
+		}
+	}
+	print("Strong sweep step 2 complete")
+	counter222 = 0
+	for B := Bmax_win; B >= -Bmax_win; B -= Bstep_win {
+		B_ext = vector(B, 0, 0)
+		minimize()
+		tablesave()
+		counter222 = counter222 + 1
+		save_condition := remainder(counter222, often_save)
+		if save_condition == 0 {
+			save(m)
+			print(100 * counter222 / (2 * Bmax_win / (Bstep_win)))
+		}
+	}
+	print("B window sweep step 1 complete")
+	counter222 = 0
+	for B := -Bmax_win; B <= Bmax_win; B += Bstep_win {
+		B_ext = vector(B, 0, 0)
+		minimize()
+		counter222 = counter222 + 1
+		save_condition := remainder(counter222, often_save)
+		if save_condition == 0 {
+			save(m)
+			print(100 * counter222 / (Bmax_win / (Bstep_win)))
+		}
+	}
+	print("B window sweep step 2 complete")
+}
+HysteresisY_condition := 0
+if HysteresisY_condition == 1 {
+	counter222 = 0
+	for B := 0.0; B >= -Bmax_strong; B += -Bstep_strong {
+		B_ext = vector(0, B, 0)
+		if relax_condition == 1 {
+			minimize()
+		}
+		tablesave()
+		counter222 = counter222 + 1
+		save_condition := remainder(counter222, often_save)
+		if save_condition == 0 {
+			save(m)
+			print(100 * counter222 / (Bmax_win / (Bstep_win)))
+		}
+	}
+	print("B window y direction sweep step 1 complete")
+	counter222 = 0
+	for B := -Bmax_strong; B <= 0.0; B += Bstep_strong {
+		B_ext = vector(0, B, 0)
+		if relax_condition == 1 {
+			minimize()
+		}
+		tablesave()
+		counter222 = counter222 + 1
+		save_condition := remainder(counter222, often_save)
+		if save_condition == 0 {
+			save(m)
+			print(100 * counter222 / (Bmax_win / (Bstep_win)))
+		}
+	}
+	print("B window y direction sweep step 2 complete")
+	counter222 = 0
+	for B := 0.0; B <= Bmax_win; B += Bstep_win {
+		B_ext = vector(0, B, 0)
+		if relax_condition == 1 {
+			minimize()
+		}
+		tablesave()
+		counter222 = counter222 + 1
+		save_condition := remainder(counter222, often_save)
+		if save_condition == 0 {
+			save(m)
+			print(100 * counter222 / (Bmax_win / (Bstep_win)))
+		}
+	}
+	counter222 = 0
+	for B := Bmax_win; B >= 0.0; B += -Bstep_win {
+		B_ext = vector(0, B, 0)
+		if relax_condition == 1 {
+			minimize()
+		}
+		tablesave()
+		counter222 = counter222 + 1
+		save_condition := remainder(counter222, often_save)
+		if save_condition == 0 {
+			save(m)
+			print(100 * counter222 / (Bmax_win / (Bstep_win)))
+		}
+	}
+}
+if relax_condition == 1 {
+	relax()
+	saveas(m, "Final_Relaxed_magnetization")
+}
+B_ext = vector(0, 0, 0)
+save(B_eff)
+save(B_eff.Comp(0))
+save(B_eff.Comp(1))
+save(B_eff.Comp(2))
+mag15 := Cuboid(2.2*xb, 1.5*yb, 2*zb).Transl(0, 0, 0)
+DefRegion(7, mag15.sub(mag13))
+save(B_eff.Region(7))
+save(B_eff.Comp(0).Region(7))
+save(B_eff.Comp(1).Region(7))
+save(B_eff.Comp(2).Region(7))
+B_eff.Average()
+FieldMeasure_condition := 0
+if FieldMeasure_condition == 1 {
+	print(cellsize_x)
+	xmin := -xb/2 - 100e-9
+	xmax := xb/2 + 100e-9
+	ymin := -yb/2 - 150e-9
+	ymax := yb/2 + 150e-9
+	num_x_points := 15
+	num_y_points := 15
+	measure_volume_x := (xmax - xmin) / num_x_points
+	measure_volume_y := (ymax - ymin) / num_y_points
+	print(measure_volume_x)
+	print(measure_volume_y)
+	measure_volume_z := 10e-9
+	mag15 := Cuboid(5.2*xb, 1.5*yb, 15e-9).Transl(0, 0, 0)
+	DefRegion(2, mag15)
+	save(B_eff.Region(2))
+	save(B_eff.Comp(0).Region(2))
+	save(B_eff.Comp(1).Region(2))
+	save(B_eff.Comp(2).Region(2))
+	for xxx := 0; xxx <= (num_x_points - 1); xxx++ {
+		step_x = measure_volume_x * xxx
+		x_trans_measure := xmin + measure_volume_x/2 + step_x
+		for yyy := 0; yyy <= (num_y_points - 1); yyy++ {
+			step_y = measure_volume_y * yyy
+			counter = counter + 1
+			y_trans_measure := ymin + measure_volume_y/2 + step_y
+			measure_volume := Cuboid(measure_volume_x, measure_volume_y, measure_volume_z).Transl(x_trans_measure, y_trans_measure, 0)
+			DefRegion(counter+5, measure_volume)
+			save_condition := remainder(counter, 13)
+			if save_condition == 0 {
+				save(regions)
+			}
+		}
+		print(100 * counter / (num_x_points * num_y_points))
+	}
+	print(measure_volume_y)
+}
+tablesave()
+Time_elapsed := since(start).Seconds()
+print("Running time of", Floor(Time_elapsed/60), "minutes and ", remainder(Time_elapsed, 60), "seconds")
+//Running time of 0 minutes and  3.6370633 seconds
+print(cellsize_x)
+//3.359375e-09
+print(cellsize_y)
+//5.078124999999999e-09
+print(cellsize_z)
+//6.8749999999999995e-09

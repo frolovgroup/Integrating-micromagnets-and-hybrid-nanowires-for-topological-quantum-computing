@@ -1,0 +1,658 @@
+//output directory: C:\Program Files\mumax3.9.1_windows\RunFiles\Tjunc_NoHysteresis_Star_222.out/
+start := now()
+wire_diameter := 100e-9
+length_wire := 1000e-9
+x_trans_system := 0e-9
+y_trans_system := 300e-9
+x_trans_hex := cos(30*pi/180)*wire_diameter/2 + wire_diameter/4 + x_trans_system
+wire_cylinder := Cylinder(wire_diameter, length_wire).RotY(-90*pi/180).Transl(x_trans_system, y_trans_system, 0)
+f := Cuboid(wire_diameter/2, wire_diameter/2, length_wire).Transl(x_trans_hex, y_trans_system, 0).RotZ(-60 * pi / 180).RotY(-90 * pi / 180)
+g := Cuboid(wire_diameter/2, wire_diameter/2, length_wire).Transl(x_trans_hex, y_trans_system, 0).RotZ(-120 * pi / 180).RotY(-90 * pi / 180)
+h := Cuboid(wire_diameter/2, wire_diameter/2, length_wire).Transl(x_trans_hex, y_trans_system, 0).RotZ(-180 * pi / 180).RotY(-90 * pi / 180)
+i := Cuboid(wire_diameter/2, wire_diameter/2, length_wire).Transl(x_trans_hex, y_trans_system, 0).RotZ(-240 * pi / 180).RotY(-90 * pi / 180)
+k := Cuboid(wire_diameter/2, wire_diameter/2, length_wire).Transl(x_trans_hex, y_trans_system, 0).RotZ(-300 * pi / 180).RotY(-90 * pi / 180)
+l := Cuboid(wire_diameter/2, wire_diameter/2, length_wire).Transl(x_trans_hex, y_trans_system, 0).RotZ(-0 * pi / 180).RotY(-90 * pi / 180)
+length_wire_LEG := length_wire/2 + 00e-9
+y_trans_wire_LEG := -(wire_diameter/2 + length_wire_LEG/2) + y_trans_system
+wire_LEG_cylinder := Cylinder(wire_diameter, length_wire_LEG).RotX(-90*pi/180).Transl(x_trans_system, y_trans_wire_LEG, 0)
+cutChunk1_LEG := Cuboid(wire_diameter/2, wire_diameter/2, length_wire_LEG).Transl(x_trans_hex, y_trans_system, 0).RotZ(-30*pi/180).RotX(-90*pi/180).Transl(x_trans_system, y_trans_wire_LEG, 0)
+cutChunk2_LEG := Cuboid(wire_diameter/2, wire_diameter/2, length_wire_LEG).Transl(x_trans_hex, y_trans_system, 0).RotZ(-90*pi/180).RotX(-90*pi/180).Transl(x_trans_system, y_trans_wire_LEG, 0)
+cutChunk3_LEG := Cuboid(wire_diameter/2, wire_diameter/2, length_wire_LEG).Transl(x_trans_hex, y_trans_system, 0).RotZ(-150*pi/180).RotX(-90*pi/180).Transl(x_trans_system, y_trans_wire_LEG, 0)
+cutChunk4_LEG := Cuboid(wire_diameter/2, wire_diameter/2, length_wire_LEG).Transl(x_trans_hex, y_trans_system, 0).RotZ(-210*pi/180).RotX(-90*pi/180).Transl(x_trans_system, y_trans_wire_LEG, 0)
+cutChunk5_LEG := Cuboid(wire_diameter/2, wire_diameter/2, length_wire_LEG).Transl(x_trans_hex, y_trans_system, 0).RotZ(-270*pi/180).RotX(-90*pi/180).Transl(x_trans_system, y_trans_wire_LEG, 0)
+cutChunk6_LEG := Cuboid(wire_diameter/2, wire_diameter/2, length_wire_LEG).Transl(x_trans_hex, y_trans_system, 0).RotZ(-330*pi/180).RotX(-90*pi/180).Transl(x_trans_system, y_trans_wire_LEG, 0)
+device_distance := 35e-9
+zb := 100e-9
+x_c_Close := 450e-9
+x_c_Far := x_c_Close + 475e-9
+xb_thin := 130e-9
+yb_thin := 1000e-9
+y_c_thin := wire_diameter/2 + yb_thin/2 + device_distance
+xb_thick := 250e-9
+yb_thick := 1000e-9
+y_c_thick := wire_diameter/2 + yb_thick/2 + device_distance
+x_c_thick_angle_extra := 0e-9
+x_c_thin_angle_extra := 0e-9
+mag_extra_y := 0
+ang_rot1 := 45
+ang_rot1_bottom := 45
+x_ct_ang_thick := sin(ang_rot1*pi/180)*(yb_thick/2) + x_c_thick_angle_extra
+y_ct_ang_thick := cos(ang_rot1*pi/180)*(yb_thick/2) + sin(ang_rot1*pi/180)*xb_thick/2 + wire_diameter/2 + device_distance
+x_ct_ang_thin := sin(ang_rot1*pi/180)*(yb_thin/2) + x_c_thin_angle_extra
+y_ct_ang_thin := cos(ang_rot1*pi/180)*(yb_thin/2) + sin(ang_rot1*pi/180)*xb_thin/2 + wire_diameter/2 + device_distance
+x_ct_ang_thick_bottom := sin(ang_rot1_bottom*pi/180)*(yb_thick/2) + x_c_thick_angle_extra
+y_ct_ang_thick_bottom := cos(ang_rot1_bottom*pi/180)*(yb_thick/2) + sin(ang_rot1_bottom*pi/180)*xb_thick/2 + wire_diameter/2 + device_distance
+x_ct_ang_thin_bottom := sin(ang_rot1_bottom*pi/180)*(yb_thin/2) + x_c_thin_angle_extra
+y_ct_ang_thin_bottom := cos(ang_rot1_bottom*pi/180)*(yb_thin/2) + sin(ang_rot1_bottom*pi/180)*xb_thin/2 + wire_diameter/2 + device_distance
+mag1 := Cuboid(xb_thin, yb_thin, zb).RotZ(ang_rot1*pi/180).Transl((-x_ct_ang_thin - x_c_Far + x_trans_system), (y_ct_ang_thin + y_trans_system), 0)
+mag2 := Cuboid(xb_thick, yb_thick, zb).RotZ(ang_rot1*pi/180).Transl((-x_ct_ang_thick - x_c_Close + x_trans_system), (y_ct_ang_thick + y_trans_system + mag_extra_y), 0)
+mag3 := Cuboid(xb_thick, yb_thick, zb).RotZ(-ang_rot1_bottom*pi/180).Transl((-x_ct_ang_thick_bottom - x_c_Far + x_trans_system), (-y_ct_ang_thick_bottom + y_trans_system), 0)
+mag4 := Cuboid(xb_thin, yb_thin, zb).RotZ(-ang_rot1_bottom*pi/180).Transl((-x_ct_ang_thin_bottom - x_c_Close + x_trans_system), (-y_ct_ang_thin_bottom + y_trans_system), 0)
+usemag8_condition := 1
+mag5 := Cuboid(xb_thick, yb_thick, zb).RotZ(-ang_rot1*pi/180).Transl((x_ct_ang_thick + x_c_Close + x_trans_system), (y_ct_ang_thick + y_trans_system), 0)
+mag6 := Cuboid(xb_thin, yb_thin, zb).RotZ(-ang_rot1*pi/180).Transl((x_ct_ang_thin + x_c_Far + x_trans_system), (y_ct_ang_thin + y_trans_system), 0)
+mag7 := Cuboid(xb_thin, yb_thin, zb).RotZ(ang_rot1_bottom*pi/180).Transl((x_ct_ang_thin_bottom + x_c_Close + x_trans_system), (-y_ct_ang_thin_bottom + y_trans_system), 0)
+mag8 := Cuboid(xb_thick, yb_thick, zb).RotZ(ang_rot1_bottom*pi/180).Transl((x_ct_ang_thick_bottom + x_c_Far + x_trans_system), (-y_ct_ang_thick_bottom + y_trans_system), 0)
+usemag_LEG_condition := 1
+y_c_Far_leg := x_c_Far + -100e-9
+y_c_Close_leg := x_c_Close + -100e-9
+ang_rot2 := 45
+x_ct_ang_thick_leg := cos(ang_rot2*pi/180)*yb_thick/2 + wire_diameter/2 + device_distance + sin(ang_rot2*pi/180)*(xb_thick/2)
+y_ct_ang_thick_leg := wire_diameter/2 + cos(ang_rot2*pi/180)*xb_thick/2 + sin(ang_rot2*pi/180)*(yb_thick/2)
+x_ct_ang_thin_leg := cos(ang_rot2*pi/180)*yb_thin/2 + wire_diameter/2 + device_distance + sin(ang_rot2*pi/180)*(xb_thin/2)
+y_ct_ang_thin_leg := wire_diameter/2 + cos(ang_rot2*pi/180)*xb_thin/2 + sin(ang_rot2*pi/180)*(yb_thin/2)
+mag9 := Cuboid(yb_thick, xb_thick, zb).RotZ(ang_rot2*pi/180).Transl((-x_ct_ang_thick_leg + x_trans_system), (-(y_ct_ang_thick_leg + y_c_Far_leg) + y_trans_system), 0)
+mag10 := Cuboid(yb_thin, xb_thin, zb).RotZ(-ang_rot2*pi/180).Transl((x_ct_ang_thin_leg + x_trans_system + 5e-9), (-(y_ct_ang_thin_leg + y_c_Close_leg) + y_trans_system), 0)
+mag11 := Cuboid(yb_thin, xb_thin, zb).RotZ(ang_rot2*pi/180).Transl((-x_ct_ang_thin_leg + x_trans_system - 5e-9), (-(y_ct_ang_thin_leg + y_c_Close_leg) + y_trans_system), 0)
+mag12 := Cuboid(yb_thick, xb_thick, zb).RotZ(-ang_rot2*pi/180).Transl((x_ct_ang_thick_leg + x_trans_system), (-(y_ct_ang_thick_leg + y_c_Far_leg) + y_trans_system), 0)
+xb_middle := 300e-9
+yb_middle := 1000e-9
+x_ct_middle := 0
+y_ct_middle_extra := 15e-9
+mag16_direction := -1
+y_ct_middle := yb_middle/2 + wire_diameter/2 + device_distance + y_ct_middle_extra
+mag16 := Cuboid(xb_middle, yb_middle, zb).Transl(x_ct_middle+x_trans_system, y_ct_middle+y_trans_system, 0)
+usemag_STAR_condition := 1
+size_increase := 1
+xb_STAR_L := 1000e-9
+yb_STAR_L := size_increase * 350e-9
+x_ct_STAR_L := xb_STAR_L/2 + length_wire/2 + device_distance
+xb_STAR_R := 1000e-9
+yb_STAR_R := size_increase * 350e-9
+x_ct_STAR_R := xb_STAR_R/2 + length_wire/2 + device_distance
+xb_STAR_LEG := size_increase * 350e-9
+yb_STAR_LEG := 1000e-9
+y_ct_STAR_LEG := yb_STAR_LEG/2 + length_wire_LEG + wire_diameter/2 + device_distance
+mag13 := Cuboid(xb_STAR_L, yb_STAR_L, zb).Transl(-x_ct_STAR_L+x_trans_system, y_trans_system, 0)
+mag14 := Cuboid(xb_STAR_R, yb_STAR_R, zb).Transl(x_ct_STAR_R+x_trans_system, y_trans_system, 0)
+mag15 := Cuboid(xb_STAR_LEG, yb_STAR_LEG, zb).Transl(x_trans_system, -y_ct_STAR_LEG+y_trans_system, 0)
+extra_dsitannce_forSmall_Magents := 0
+xb_ang := size_increase * 150e-9
+yb_ang := 1400e-9
+ang_rot3 := 45
+x_ct_ang := extra_dsitannce_forSmall_Magents + sin(ang_rot3*pi/180)*(yb_ang/2) + cos(ang_rot3*pi/180)*xb_ang/2 + wire_diameter/2 + device_distance
+y_ct_ang := extra_dsitannce_forSmall_Magents + cos(ang_rot3*pi/180)*(yb_ang/2) + sin(ang_rot3*pi/180)*xb_ang/2 + wire_diameter/2 + device_distance
+mag17 := Cuboid(xb_ang, yb_ang, zb).RotZ(-ang_rot3*pi/180).Transl(-x_ct_ang+x_trans_system, -y_ct_ang+y_trans_system, 0)
+mag18 := Cuboid(xb_ang, yb_ang, zb).RotZ(ang_rot3*pi/180).Transl(x_ct_ang+x_trans_system, -y_ct_ang+y_trans_system, 0)
+extra_simBox_width_mags_x := 100e-9
+extra_simBox_width_mags_y := 100e-9
+Grid_X := length_wire + 2*device_distance + xb_STAR_L + xb_STAR_R + extra_simBox_width_mags_x
+N_x := 256
+cellsize_x := Grid_X / N_x
+print(Grid_X)
+//3.1699999999999993e-06
+print(cellsize_x)
+//1.2382812499999997e-08
+Grid_Y := wire_diameter + device_distance + yb_STAR_LEG + length_wire_LEG + extra_simBox_width_mags_y
+N_y := 128
+cellsize_y := Grid_Y / N_Y
+print(Grid_Y)
+//1.735e-06
+print(cellsize_y)
+//1.35546875e-08
+Grid_Z := wire_diameter
+N_z := 8
+cellsize_z := Grid_Z / N_z
+print(cellsize_z)
+//1.25e-08
+SetGridsize(N_x, N_y, N_z)
+SetCellsize(cellsize_x, cellsize_y, cellsize_z)
+if usemag8_condition == 1 {
+}
+if usemag_LEG_condition == 1 {
+}
+SetGeom(wire_cylinder.sub(f).sub(g).sub(h).sub(i).sub(k).sub(l).add(wire_LEG_cylinder).sub(cutChunk1_LEG).sub(cutChunk2_LEG).sub(cutChunk3_LEG).sub(cutChunk4_LEG).sub(cutChunk5_LEG).sub(cutChunk6_LEG).add(mag13).add(mag14).add(mag15))
+saveas(geom, "SetUp")
+Msat_val := 1.44e6
+Aex_magnets_value := 3.0e-11
+K1_anisotropy_constant := 4.5e5
+K2_anisotropy_constant := 1.5e5
+damping_constant := 0.01
+External_Field_vector := vector(0, 0, 0)
+mag_region_number13 := 0
+mag_region_number14 := 0
+mag_region_number15 := 0
+mag_region_number16 := 0
+mag_region_number17 := 0
+mag_region_number18 := 0
+mag_region_number13_magnetization := randomMag()
+mag_region_number14_magnetization := randomMag()
+mag_region_number15_magnetization := randomMag()
+mag_region_number16_magnetization := randomMag()
+mag_region_number17_magnetization := randomMag()
+mag_region_number18_magnetization := randomMag()
+ang_rot4 := 90
+mag_region_number13_anisUVector := vector(sin(ang_rot4*pi/180), cos(ang_rot4*pi/180), 0)
+mag_region_number14_anisUVector := vector(sin(ang_rot4*pi/180), cos(ang_rot4*pi/180), 0)
+mag_region_number15_anisUVector := vector(0, -1, 0)
+mag_region_number17_anisUVector := vector(-sin(ang_rot4*pi/180), cos(ang_rot4*pi/180), 0)
+mag_region_number18_anisUVector := vector(-sin(ang_rot4*pi/180), cos(ang_rot4*pi/180), 0)
+mag_region_number16_anisUVector := vector(0, -1, 0)
+relax_condition := 0
+setInitialMagnetization_condition := 1
+if setInitialMagnetization_condition == 1 {
+	flip_sign := 1
+	mag_region_number13_magnetization = Uniform(flip_sign*-sin(ang_rot4*pi/180), flip_sign*-cos(ang_rot4*pi/180), 0)
+	mag_region_number14_magnetization = Uniform(flip_sign*sin(ang_rot4*pi/180), flip_sign*cos(ang_rot4*pi/180), 0)
+	mag_region_number15_magnetization = Uniform(-cos(ang_rot4*pi/180), -sin(ang_rot4*pi/180), 0)
+	mag_region_number17_magnetization = Uniform(-sin(ang_rot4*pi/180), cos(ang_rot4*pi/180), 0)
+	mag_region_number18_magnetization = Uniform(sin(ang_rot4*pi/180), -cos(ang_rot4*pi/180), 0)
+	mag_region_number16_magnetization = Uniform(0, mag16_direction*1, 0)
+}
+if usemag_STAR_condition == 1 {
+	mag_region_number13 = 23
+	DefRegion(mag_region_number13, mag13)
+	m.SetRegion(mag_region_number13, mag_region_number13_magnetization)
+	Msat.SetRegion(mag_region_number13, Msat_val)
+	Aex.SetRegion(mag_region_number13, Aex_magnets_value)
+	anisU.SetRegion(mag_region_number13, mag_region_number13_anisUVector)
+	Ku1.SetRegion(mag_region_number13, K1_anisotropy_constant)
+	Ku2.SetRegion(mag_region_number13, K2_anisotropy_constant)
+	alpha.SetRegion(mag_region_number13, damping_constant)
+	mag_region_number14 = 24
+	DefRegion(mag_region_number14, mag14)
+	m.SetRegion(mag_region_number14, mag_region_number14_magnetization)
+	Msat.SetRegion(mag_region_number14, Msat_val)
+	Aex.SetRegion(mag_region_number14, Aex_magnets_value)
+	anisU.SetRegion(mag_region_number14, mag_region_number14_anisUVector)
+	Ku1.SetRegion(mag_region_number14, K1_anisotropy_constant)
+	Ku2.SetRegion(mag_region_number14, K2_anisotropy_constant)
+	alpha.SetRegion(mag_region_number14, damping_constant)
+	mag_region_number15 = 25
+	DefRegion(mag_region_number15, mag15)
+	m.SetRegion(mag_region_number15, mag_region_number15_magnetization)
+	Msat.SetRegion(mag_region_number15, Msat_val)
+	Aex.SetRegion(mag_region_number15, Aex_magnets_value)
+	anisU.SetRegion(mag_region_number15, mag_region_number15_anisUVector)
+	Ku1.SetRegion(mag_region_number15, K1_anisotropy_constant)
+	Ku2.SetRegion(mag_region_number15, K2_anisotropy_constant)
+	alpha.SetRegion(mag_region_number15, damping_constant)
+	mag_region_number16 = 35
+	DefRegion(mag_region_number16, mag16)
+	m.SetRegion(mag_region_number16, mag_region_number16_magnetization)
+	Msat.SetRegion(mag_region_number16, Msat_val)
+	Aex.SetRegion(mag_region_number16, Aex_magnets_value)
+	anisU.SetRegion(mag_region_number16, vector(0, 1, 0))
+	Ku1.SetRegion(mag_region_number16, K1_anisotropy_constant)
+	Ku2.SetRegion(mag_region_number16, K2_anisotropy_constant)
+	alpha.SetRegion(mag_region_number16, damping_constant)
+}
+usemag_TRIANGLE_condition := 0
+if usemag_TRIANGLE_condition == 1 {
+	x_component := sin(ang_rot1 * pi / 180)
+	y_component := cos(ang_rot1 * pi / 180)
+	UUU := 0
+	UUD := 0
+	DUD := 0
+	DDD := 0
+	DDU := 0
+	UDU := 0
+	DUU := 0
+	UDD := 0
+	Middle_mag_intitial_magnetization := Uniform(0, 0, 0)
+	DownLeft_mag_intitial_magnetization := Uniform(0, 0, 0)
+	DownRight_mag_intitial_magnetization := Uniform(0, 0, 0)
+	ang_rot_Bext := 45
+	mag_Bext := 0.15
+	if UUU == 1 {
+		Middle_mag_intitial_magnetization = Uniform(0, 1, 0)
+		DownLeft_mag_intitial_magnetization = Uniform(x_component, y_component, 0)
+		DownRight_mag_intitial_magnetization = Uniform(-x_component, y_component, 0)
+		External_Field_vector = vector(mag_Bext, 0, 0)
+	}
+	if UUD == 1 {
+		Middle_mag_intitial_magnetization = Uniform(0, 1, 0)
+		DownLeft_mag_intitial_magnetization = Uniform(x_component, y_component, 0)
+		DownRight_mag_intitial_magnetization = Uniform(x_component, -y_component, 0)
+		External_Field_vector = vector(0, -mag_Bext, 0)
+	}
+	if DUD == 1 {
+		Middle_mag_intitial_magnetization = Uniform(0, -1, 0)
+		DownLeft_mag_intitial_magnetization = Uniform(x_component, y_component, 0)
+		DownRight_mag_intitial_magnetization = Uniform(x_component, -y_component, 0)
+		External_Field_vector = vector(0, 0, 0)
+	}
+	if DDD == 1 {
+		Middle_mag_intitial_magnetization = Uniform(0, -1, 0)
+		DownLeft_mag_intitial_magnetization = Uniform(-x_component, -y_component, 0)
+		DownRight_mag_intitial_magnetization = Uniform(x_component, -y_component, 0)
+		External_Field_vector = vector(0, -mag_Bext, 0)
+	}
+	if DDU == 1 {
+		Middle_mag_intitial_magnetization = Uniform(0, -1, 0)
+		DownLeft_mag_intitial_magnetization = Uniform(-x_component, -y_component, 0)
+		DownRight_mag_intitial_magnetization = Uniform(-x_component, y_component, 0)
+	}
+	if UDU == 1 {
+		Middle_mag_intitial_magnetization = Uniform(0, 1, 0)
+		DownLeft_mag_intitial_magnetization = Uniform(-x_component, -y_component, 0)
+		DownRight_mag_intitial_magnetization = Uniform(-x_component, y_component, 0)
+		External_Field_vector = vector(-mag_Bext*sin(ang_rot_Bext*pi/180), -mag_Bext*cos(ang_rot_Bext*pi/180), 0)
+	}
+	if DUU == 1 {
+		Middle_mag_intitial_magnetization = Uniform(0, -1, 0)
+		DownLeft_mag_intitial_magnetization = Uniform(x_component, y_component, 0)
+		DownRight_mag_intitial_magnetization = Uniform(-x_component, y_component, 0)
+	}
+	if UDD == 1 {
+		Middle_mag_intitial_magnetization = Uniform(0, 1, 0)
+		DownLeft_mag_intitial_magnetization = Uniform(-x_component, -y_component, 0)
+		DownRight_mag_intitial_magnetization = Uniform(x_component, -y_component, 0)
+		External_Field_vector = vector(mag_Bext*sin(ang_rot_Bext*pi/180), -mag_Bext*cos(ang_rot_Bext*pi/180), 0)
+	}
+	mag_region_number16 = 35
+	DefRegion(mag_region_number16, mag16)
+	m.SetRegion(mag_region_number16, Middle_mag_intitial_magnetization)
+	Msat.SetRegion(mag_region_number16, Msat_val)
+	Aex.SetRegion(mag_region_number16, Aex_magnets_value)
+	anisU.SetRegion(mag_region_number16, vector(0, 1, 0))
+	Ku1.SetRegion(mag_region_number16, K1_anisotropy_constant)
+	Ku2.SetRegion(mag_region_number16, K2_anisotropy_constant)
+	alpha.SetRegion(mag_region_number16, damping_constant)
+	mag_region_number17 = 36
+	DefRegion(mag_region_number17, mag17)
+	m.SetRegion(mag_region_number17, DownLeft_mag_intitial_magnetization)
+	Msat.SetRegion(mag_region_number17, Msat_val)
+	Aex.SetRegion(mag_region_number17, Aex_magnets_value)
+	anisU.SetRegion(mag_region_number17, vector(1/sqrt(2), 1/sqrt(2), 0))
+	Ku1.SetRegion(mag_region_number17, K1_anisotropy_constant)
+	Ku2.SetRegion(mag_region_number17, K2_anisotropy_constant)
+	alpha.SetRegion(mag_region_number17, damping_constant)
+	mag_region_number18 = 37
+	DefRegion(mag_region_number18, mag18)
+	m.SetRegion(mag_region_number18, DownRight_mag_intitial_magnetization)
+	Msat.SetRegion(mag_region_number18, Msat_val)
+	Aex.SetRegion(mag_region_number18, Aex_magnets_value)
+	anisU.SetRegion(mag_region_number18, vector(-1/sqrt(2), 1/sqrt(2), 0))
+	Ku1.SetRegion(mag_region_number18, K1_anisotropy_constant)
+	Ku2.SetRegion(mag_region_number18, K2_anisotropy_constant)
+	alpha.SetRegion(mag_region_number18, damping_constant)
+}
+saveas(regions, "Magnets")
+saveas(anisU, "region_Uniaxial_anisotropy_direction")
+region_number_WIRE_TOP := 2
+DefRegion(region_number_WIRE_TOP, wire_cylinder.sub(f).sub(g).sub(h).sub(i).sub(k).sub(l))
+m.SetRegion(region_number_WIRE_TOP, Uniform(0, 0, 0))
+Msat.SetRegion(region_number_WIRE_TOP, 0)
+Aex.SetRegion(region_number_WIRE_TOP, 0)
+anisU.SetRegion(region_number_WIRE_TOP, vector(0, 0, 0))
+Ku1.SetRegion(region_number_WIRE_TOP, 0)
+Ku2.SetRegion(region_number_WIRE_TOP, 0)
+region_number_WIRE_LEG := 3
+DefRegion(region_number_WIRE_LEG, wire_LEG_cylinder.sub(cutChunk1_LEG).sub(cutChunk2_LEG).sub(cutChunk3_LEG).sub(cutChunk4_LEG).sub(cutChunk5_LEG).sub(cutChunk6_LEG))
+m.SetRegion(region_number_WIRE_LEG, Uniform(0, 0, 0))
+Msat.SetRegion(region_number_WIRE_LEG, 0)
+Aex.SetRegion(region_number_WIRE_LEG, 0)
+anisU.SetRegion(region_number_WIRE_LEG, vector(0, 0, 0))
+Ku1.SetRegion(region_number_WIRE_LEG, 0)
+Ku2.SetRegion(region_number_WIRE_LEG, 0)
+saveas(m, "Initial_magnetization")
+if relax_condition == 1 {
+	relax()
+	saveas(m, "Initial_Relaxed_magnetization")
+}
+count_min := 0e-9
+count_max := length_wire
+step_x := count_min
+step_y := wire_diameter
+counter := 0
+points_TOP_wire := 0
+TableAdd(m.Region(mag_region_number13))
+TableAdd(m.Region(mag_region_number14))
+TableAdd(m.Region(mag_region_number15))
+TableAdd(B_ext)
+TableAdd(B_eff.Region(6))
+TableAdd(B_eff.Region(9))
+TableAddVar(step_x, "step_x", "No unit")
+TableAddVar(step_y, "step_y", "No unit")
+TableAddVar(points_TOP_wire, "points_TOP_wire", "No unit")
+often_save := 8
+Bmax_strong := 500.0e-3
+Bstep_strong := 10e-3
+Bmax_win_big := 450e-3
+Bmax_win_small := 340e-3
+Bstep_win := 2 * 3.0e-3
+MinimizerStop = 1e-6
+counter222 := 0
+BextLeftUp_Sweep_condition := 0
+if BextLeftUp_Sweep_condition == 1 {
+	counter222 = 0
+	for B := 0.0; B <= Bmax_win_big; B += Bstep_win {
+		B_ext = vector(-B*sin(ang_rot1*pi/180), B*cos(ang_rot1*pi/180), 0)
+		if relax_condition == 1 {
+			minimize()
+		}
+		tablesave()
+		counter222 = counter222 + 1
+		save_condition := remainder(counter222, often_save)
+		if save_condition == 0 {
+			save(m)
+			print(100 * counter222 / (Bmax_win_big / (Bstep_win)))
+		}
+	}
+	print("sweeps from B=0 to positve B_window_strong in -ve x direction and +ve y direction complete")
+	counter222 = 0
+	for B := Bmax_win_big; B >= 0; B -= Bstep_win {
+		B_ext = vector(-B*sin(ang_rot1*pi/180), B*cos(ang_rot1*pi/180), 0)
+		if relax_condition == 1 {
+			minimize()
+		}
+		tablesave()
+		counter222 = counter222 + 1
+		save_condition := remainder(counter222, often_save)
+		if save_condition == 0 {
+			save(m)
+			print(100 * counter222 / (Bmax_win_big / (Bstep_win)))
+		}
+	}
+	print("Back to 0 complete")
+}
+BextRightUp_Sweep_condition := 0
+if BextRightUp_Sweep_condition == 1 {
+	counter222 = 0
+	for B := 0.0; B <= Bmax_win_big; B += Bstep_win {
+		B_ext = vector(B*sin(ang_rot1*pi/180), B*cos(ang_rot1*pi/180), 0)
+		if relax_condition == 1 {
+			minimize()
+		}
+		tablesave()
+		counter222 = counter222 + 1
+		save_condition := remainder(counter222, often_save)
+		if save_condition == 0 {
+			save(m)
+			print(100 * counter222 / (Bmax_win_big / (Bstep_win)))
+		}
+	}
+	print("sweeps from B=0 to positve B_window_strong in +ve x direction and +ve y direction complete")
+	counter222 = 0
+	for B := Bmax_win_big; B >= 0; B -= Bstep_win {
+		B_ext = vector(B*sin(ang_rot1*pi/180), B*cos(ang_rot1*pi/180), 0)
+		if relax_condition == 1 {
+			minimize()
+		}
+		tablesave()
+		counter222 = counter222 + 1
+		save_condition := remainder(counter222, often_save)
+		if save_condition == 0 {
+			save(m)
+			print(100 * counter222 / (Bmax_win_big / (Bstep_win)))
+		}
+	}
+	print("Back to 0 complete")
+}
+BextRightDown_Sweep_condition := 0
+if BextRightDown_Sweep_condition == 1 {
+	counter222 = 0
+	for B := 0.0; B <= Bmax_win_small; B += Bstep_win {
+		B_ext = vector(B*sin(ang_rot1*pi/180), -B*cos(ang_rot1*pi/180), 0)
+		if relax_condition == 1 {
+			minimize()
+		}
+		tablesave()
+		counter222 = counter222 + 1
+		save_condition := remainder(counter222, often_save)
+		if save_condition == 0 {
+			save(m)
+			print(100 * counter222 / (Bmax_win_big / (Bstep_win)))
+		}
+	}
+	print("sweeps from B=0 to positve B_window_strong in +ve x direction and -ve y direction complete")
+	counter222 = 0
+	for B := Bmax_win_small; B >= 0; B -= Bstep_win {
+		B_ext = vector(B*sin(ang_rot1*pi/180), -B*cos(ang_rot1*pi/180), 0)
+		if relax_condition == 1 {
+			minimize()
+		}
+		tablesave()
+		counter222 = counter222 + 1
+		save_condition := remainder(counter222, often_save)
+		if save_condition == 0 {
+			save(m)
+			print(100 * counter222 / (Bmax_win_big / (Bstep_win)))
+		}
+	}
+	print("Back to 0 complete")
+}
+BextLeftDown_Sweep_condition := 0
+if BextLeftDown_Sweep_condition == 1 {
+	counter222 = 0
+	for B := 0.0; B <= Bmax_win_small; B += Bstep_win {
+		B_ext = vector(-B*sin(ang_rot1*pi/180), -B*cos(ang_rot1*pi/180), 0)
+		if relax_condition == 1 {
+			minimize()
+		}
+		tablesave()
+		counter222 = counter222 + 1
+		save_condition := remainder(counter222, often_save)
+		if save_condition == 0 {
+			save(m)
+			print(100 * counter222 / (Bmax_win_big / (Bstep_win)))
+		}
+	}
+	print("sweeps from B=0 to positve B_window_strong in -ve x direction and -ve y direction complete")
+	counter222 = 0
+	for B := Bmax_win_small; B >= 0; B -= Bstep_win {
+		B_ext = vector(-B*sin(ang_rot1*pi/180), -B*cos(ang_rot1*pi/180), 0)
+		if relax_condition == 1 {
+			minimize()
+		}
+		tablesave()
+		counter222 = counter222 + 1
+		save_condition := remainder(counter222, often_save)
+		if save_condition == 0 {
+			save(m)
+			print(100 * counter222 / (Bmax_win_big / (Bstep_win)))
+		}
+	}
+	print("Back to 0 complete")
+}
+save(B_eff)
+save(B_eff.Comp(0))
+save(B_eff.Comp(1))
+save(B_eff.Comp(2))
+B_ext = vector(0, 0, 0)
+xmin := -length_wire / 2
+xmax := length_wire / 2
+points_TOP_wire = Ceil(length_wire / cellsize_x)
+print(points_TOP_wire)
+//81
+size_stepAndChunk_x := length_wire / Ceil(length_wire/cellsize_x)
+print(size_stepAndChunk_x)
+//1.2345679012345678e-08
+for zzz := 0; zzz <= (points_TOP_wire - 1); zzz++ {
+	step_x = size_stepAndChunk_x * zzz
+	counter = counter + 1
+	length_left_part := step_x
+	length_right_part := length_wire - step_x - size_stepAndChunk_x
+	x_trans_left_part := xmin + step_x/2 + x_trans_system
+	x_trans_right_part := step_x/2 + size_stepAndChunk_x/2 + x_trans_system
+	x_trans_cross_section := xmin + step_x + size_stepAndChunk_x/2 + x_trans_system
+	c := Cylinder(wire_diameter, length_left_part).RotY(-90*pi/180).Transl((x_trans_left_part), y_trans_system, 0)
+	d := Cylinder(wire_diameter, length_right_part).RotY(-90*pi/180).Transl((x_trans_right_part), y_trans_system, 0)
+	cross_section := Cylinder(wire_diameter, size_stepAndChunk_x).RotY(-90*pi/180).Transl((x_trans_cross_section), y_trans_system, 0)
+	DefRegion(4, c.sub(f).sub(g).sub(h).sub(i).sub(k).sub(l))
+	DefRegion(5, d.sub(f).sub(g).sub(h).sub(i).sub(k).sub(l))
+	DefRegion(6, cross_section.sub(f).sub(g).sub(h).sub(i).sub(k).sub(l))
+	save_condition := remainder(counter, 5)
+	if save_condition == 0 {
+	}
+	tablesave()
+	print(counter)
+}
+//1
+//2
+//3
+//4
+//5
+//6
+//7
+//8
+//9
+//10
+//11
+//12
+//13
+//14
+//15
+//16
+//17
+//18
+//19
+//20
+//21
+//22
+//23
+//24
+//25
+//26
+//27
+//28
+//29
+//30
+//31
+//32
+//33
+//34
+//35
+//36
+//37
+//38
+//39
+//40
+//41
+//42
+//43
+//44
+//45
+//46
+//47
+//48
+//49
+//50
+//51
+//52
+//53
+//54
+//55
+//56
+//57
+//58
+//59
+//60
+//61
+//62
+//63
+//64
+//65
+//66
+//67
+//68
+//69
+//70
+//71
+//72
+//73
+//74
+//75
+//76
+//77
+//78
+//79
+//80
+//81
+counter = 0
+ymin_LEG := wire_diameter / 2
+points_LEG_wire := Ceil(length_wire_LEG / cellsize_y)
+print(points_LEG_wire)
+//37
+print(length_wire_LEG)
+//5e-07
+print(cellsize_y)
+//1.35546875e-08
+size_stepAndChunk_y := length_wire_LEG / Ceil(length_wire_LEG/cellsize_y)
+for yyy := 0; yyy <= (points_LEG_wire - 1); yyy++ {
+	step_y = ymin_LEG + size_stepAndChunk_y*yyy
+	counter = counter + 1
+	length_up_part := step_y - ymin_LEG
+	length_down_part := length_wire_LEG - step_y
+	y_trans_up_part := -ymin_LEG - size_stepAndChunk_y*yyy/2 + y_trans_system
+	y_trans_down_part := -length_wire_LEG/2 - step_y/2 - ymin_LEG + y_trans_system
+	y_trans_cross_section := -ymin_LEG - step_y/2 - size_stepAndChunk_y*yyy/2 + y_trans_system
+	demag_region_up_LEG := Cylinder(wire_diameter, length_up_part).RotX(-90*pi/180).Transl(x_trans_system, y_trans_up_part, 0)
+	demag_region_down_LEG := Cylinder(wire_diameter, length_down_part).RotX(-90*pi/180).Transl(x_trans_system, y_trans_down_part, 0)
+	cross_section_LEG := Cylinder(wire_diameter, size_stepAndChunk_y).RotX(-90*pi/180).Transl(x_trans_system, y_trans_cross_section, 0)
+	DefRegion(7, demag_region_up_LEG.sub(cutChunk2_LEG).sub(cutChunk3_LEG).sub(cutChunk4_LEG).sub(cutChunk5_LEG).sub(cutChunk6_LEG))
+	DefRegion(8, demag_region_down_LEG.sub(cutChunk2_LEG).sub(cutChunk3_LEG).sub(cutChunk4_LEG).sub(cutChunk5_LEG).sub(cutChunk6_LEG))
+	DefRegion(9, cross_section_LEG.sub(f).sub(cutChunk2_LEG).sub(cutChunk3_LEG).sub(cutChunk4_LEG).sub(cutChunk5_LEG).sub(cutChunk6_LEG))
+	save_condition := remainder(counter, 5)
+	if save_condition == 0 {
+	}
+	tablesave()
+	print(counter)
+}
+//1
+//2
+//3
+//4
+//5
+//6
+//7
+//8
+//9
+//10
+//11
+//12
+//13
+//14
+//15
+//16
+//17
+//18
+//19
+//20
+//21
+//22
+//23
+//24
+//25
+//26
+//27
+//28
+//29
+//30
+//31
+//32
+//33
+//34
+//35
+//36
+//37
+Time_elapsed := since(start).Seconds()
+print("Running time of", Floor(Time_elapsed/60), "minutes and ", remainder(Time_elapsed, 60), "seconds")
+//Running time of 0 minutes and  6.2517012 seconds
+print(cellsize_x)
+//1.2382812499999997e-08
+print(cellsize_y)
+//1.35546875e-08
+print(cellsize_z)
+//1.25e-08

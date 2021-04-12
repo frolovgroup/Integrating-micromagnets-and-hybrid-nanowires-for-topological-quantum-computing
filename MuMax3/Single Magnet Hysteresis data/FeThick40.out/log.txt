@@ -1,0 +1,373 @@
+//output directory: C:\Program Files\mumax3.9.1_windows\RunFiles\Hysteresis_1mag_Accurate_222_FeThick40.out/
+start := now()
+wire_diameter := 100e-9
+length_wire := 780e-9
+x_trans := cos(30*pi/180)*wire_diameter/2 + wire_diameter/4
+y_trans_wire := 0
+wire_cylinder := Cylinder(wire_diameter, length_wire).RotY(-90*pi/180).Transl(0, y_trans_wire, 0)
+f := Cuboid(wire_diameter/2, wire_diameter/2, length_wire).Transl(x_trans, y_trans_wire, 0).RotZ(-60 * pi / 180).RotY(-90 * pi / 180)
+g := Cuboid(wire_diameter/2, wire_diameter/2, length_wire).Transl(x_trans, y_trans_wire, 0).RotZ(-120 * pi / 180).RotY(-90 * pi / 180)
+h := Cuboid(wire_diameter/2, wire_diameter/2, length_wire).Transl(x_trans, y_trans_wire, 0).RotZ(-180 * pi / 180).RotY(-90 * pi / 180)
+i := Cuboid(wire_diameter/2, wire_diameter/2, length_wire).Transl(x_trans, y_trans_wire, 0).RotZ(-240 * pi / 180).RotY(-90 * pi / 180)
+k := Cuboid(wire_diameter/2, wire_diameter/2, length_wire).Transl(x_trans, y_trans_wire, 0).RotZ(-300 * pi / 180).RotY(-90 * pi / 180)
+l := Cuboid(wire_diameter/2, wire_diameter/2, length_wire).Transl(x_trans, y_trans_wire, 0).RotZ(-0 * pi / 180).RotY(-90 * pi / 180)
+length_wire_LEG := length_wire / 2
+y_trans_wire_LEG := -(wire_diameter/2 + length_wire_LEG/2)
+wire_LEG_cylinder := Cylinder(wire_diameter, length_wire_LEG).RotX(-90*pi/180).Transl(0, y_trans_wire_LEG, 0)
+cutChunk1_LEG := Cuboid(wire_diameter/2, wire_diameter/2, length_wire_LEG).Transl(x_trans, y_trans_wire, 0).RotZ(-30*pi/180).RotX(-90*pi/180).Transl(0, y_trans_wire_LEG, 0)
+cutChunk2_LEG := Cuboid(wire_diameter/2, wire_diameter/2, length_wire_LEG).Transl(x_trans, y_trans_wire, 0).RotZ(-90*pi/180).RotX(-90*pi/180).Transl(0, y_trans_wire_LEG, 0)
+cutChunk3_LEG := Cuboid(wire_diameter/2, wire_diameter/2, length_wire_LEG).Transl(x_trans, y_trans_wire, 0).RotZ(-150*pi/180).RotX(-90*pi/180).Transl(0, y_trans_wire_LEG, 0)
+cutChunk4_LEG := Cuboid(wire_diameter/2, wire_diameter/2, length_wire_LEG).Transl(x_trans, y_trans_wire, 0).RotZ(-210*pi/180).RotX(-90*pi/180).Transl(0, y_trans_wire_LEG, 0)
+cutChunk5_LEG := Cuboid(wire_diameter/2, wire_diameter/2, length_wire_LEG).Transl(x_trans, y_trans_wire, 0).RotZ(-270*pi/180).RotX(-90*pi/180).Transl(0, y_trans_wire_LEG, 0)
+cutChunk6_LEG := Cuboid(wire_diameter/2, wire_diameter/2, length_wire_LEG).Transl(x_trans, y_trans_wire, 0).RotZ(-330*pi/180).RotX(-90*pi/180).Transl(0, y_trans_wire_LEG, 0)
+device_distance := 40e-9
+zb := 40e-9
+usemag_STAR_condition := 1
+size_increase := 1
+xb_STAR_L := 1800e-9
+yb_STAR_L := 350e-9
+x_ct_STAR_L := 0
+xb_STAR_R := 0e-9
+yb_STAR_R := size_increase * 0e-9
+x_ct_STAR_R := 0
+xb_STAR_LEG := size_increase * 300e-9
+yb_STAR_LEG := 2000e-9
+y_ct_STAR_LEG := yb_STAR_LEG/2 + length_wire/2 + wire_diameter/2 + device_distance
+mag13 := Cuboid(xb_STAR_L, yb_STAR_L, zb).Transl(-x_ct_STAR_L, 0, 0)
+mag14 := Cuboid(xb_STAR_R, yb_STAR_R, zb).Transl(x_ct_STAR_R, 0, 0)
+mag15 := Cuboid(xb_STAR_LEG, yb_STAR_LEG, zb).Transl(0, -y_ct_STAR_LEG, 0)
+usemag_TRIANGLE_condition := 0
+extra_dsitannce_forSmall_Magents := 0
+xb_middle := size_increase * 200e-9
+yb_middle := 1500e-9
+x_ct_middle := 0
+y_ct_middle := yb_middle/2 + wire_diameter/2 + device_distance + extra_dsitannce_forSmall_Magents
+mag16 := Cuboid(xb_middle, yb_middle, zb).Transl(x_ct_middle, y_ct_middle, 0)
+xb_ang := size_increase * 150e-9
+yb_ang := 1400e-9
+ang_rot1 := 45
+x_ct_ang := extra_dsitannce_forSmall_Magents + sin(ang_rot1*pi/180)*(yb_ang/2) + cos(ang_rot1*pi/180)*xb_ang/2 + wire_diameter/2 + device_distance
+y_ct_ang := extra_dsitannce_forSmall_Magents + cos(ang_rot1*pi/180)*(yb_ang/2) + sin(ang_rot1*pi/180)*xb_ang/2 + wire_diameter/2 + device_distance
+mag17 := Cuboid(xb_ang, yb_ang, zb).RotZ(-ang_rot1*pi/180).Transl(-x_ct_ang, -y_ct_ang, 0)
+mag18 := Cuboid(xb_ang, yb_ang, zb).RotZ(ang_rot1*pi/180).Transl(x_ct_ang, -y_ct_ang, 0)
+extra_simBox_width_mags_x := max(xb_STAR_R, xb_STAR_L)
+extra_simBox_width_mags_y := yb_STAR_LEG
+Grid_X := xb_STAR_L
+N_x := 512
+cellsize_x := Grid_X / N_x
+print(cellsize_x)
+//3.515625e-09
+Grid_Y := yb_STAR_L
+N_y := 128
+cellsize_y := Grid_Y / N_Y
+print(cellsize_y)
+//2.734375e-09
+Grid_Z := zb
+N_z := 8
+cellsize_z := Grid_Z / N_z
+print(cellsize_z)
+//5e-09
+SetGridsize(N_x, N_y, N_z)
+SetCellsize(cellsize_x, cellsize_y, cellsize_z)
+SetGeom(mag13)
+saveas(geom, "SetUp")
+Msat_val := 1.75e6
+Aex_magnets_value := 2.1e-11
+K1_anisotropy_constant := 4.7e4
+K2_anisotropy_constant := 2.0e4
+damping_constant := 0.01
+External_Field_vector := vector(0, 0, 0)
+mag_region_number13 := 0
+mag_region_number14 := 0
+mag_region_number15 := 0
+mag_region_number13 = 32
+DefRegion(mag_region_number13, mag13)
+m.SetRegion(mag_region_number13, randomMag())
+Msat.SetRegion(mag_region_number13, Msat_val)
+Aex.SetRegion(mag_region_number13, Aex_magnets_value)
+anisU.SetRegion(mag_region_number13, vector(-1, 0, 0))
+Ku1.SetRegion(mag_region_number13, K1_anisotropy_constant)
+Ku2.SetRegion(mag_region_number13, K2_anisotropy_constant)
+alpha.SetRegion(mag_region_number13, damping_constant)
+mag_region_number14 = 33
+DefRegion(mag_region_number14, mag14)
+m.SetRegion(mag_region_number14, Uniform(0, 0, 0))
+Msat.SetRegion(mag_region_number14, Msat_val)
+Aex.SetRegion(mag_region_number14, Aex_magnets_value)
+anisU.SetRegion(mag_region_number14, vector(1, 0, 0))
+Ku1.SetRegion(mag_region_number14, K1_anisotropy_constant)
+Ku2.SetRegion(mag_region_number14, K2_anisotropy_constant)
+alpha.SetRegion(mag_region_number14, damping_constant)
+mag_region_number15 = 34
+DefRegion(mag_region_number15, mag15)
+m.SetRegion(mag_region_number15, randomMag())
+Msat.SetRegion(mag_region_number15, Msat_val)
+Aex.SetRegion(mag_region_number15, Aex_magnets_value)
+anisU.SetRegion(mag_region_number15, vector(0, -1, 0))
+Ku1.SetRegion(mag_region_number15, K1_anisotropy_constant)
+Ku2.SetRegion(mag_region_number15, K2_anisotropy_constant)
+alpha.SetRegion(mag_region_number15, damping_constant)
+saveas(regions, "Magnets")
+saveas(anisU, "region_Uniaxial_anisotropy_direction")
+print(cellsize_x)
+//3.515625e-09
+print(cellsize_y)
+//2.734375e-09
+print(cellsize_z)
+//5e-09
+saveas(m, "Initial_magnetization")
+relax_condition := 1
+if relax_condition == 1 {
+	relax()
+	saveas(m, "Initial_Relaxed_magnetization")
+}
+count_min := 0e-9
+count_max := length_wire
+step_x := count_min
+step_y := wire_diameter
+counter := 0
+TableAdd(m.Region(mag_region_number13))
+TableAdd(m.Region(mag_region_number14))
+TableAdd(m.Region(mag_region_number15))
+TableAdd(B_ext)
+TableAdd(B_eff.Region(6))
+TableAdd(B_eff.Region(9))
+TableAddVar(step_x, "step_x", "No unit")
+TableAddVar(step_y, "step_y", "No unit")
+HysteresisX_condition := 1
+if HysteresisX_condition == 1 {
+	often_save := 8
+	Bmax_strong := 700.0e-3
+	Bstep_strong := 40e-3
+	Bmax_win := 600.0e-3
+	Bstep_win := 20.0e-3
+	MinimizerStop = 1e-6
+	counter222 := 0
+	for B := 0.0; B <= Bmax_strong; B += Bstep_strong {
+		B_ext = vector(B, 0, 0)
+		minimize()
+		tablesave()
+		counter222 = counter222 + 1
+		save_condition := remainder(counter222, often_save)
+		if save_condition == 0 {
+			save(m)
+		}
+		print(100 * B / Bmax_strong)
+	}
+	print("Strong sweep step 1 complete")
+	counter222 = 0
+	for B := Bmax_strong; B >= Bmax_win; B -= Bstep_strong {
+		B_ext = vector(B, 0, 0)
+		minimize()
+		tablesave()
+		counter222 = counter222 + 1
+		save_condition := remainder(counter222, often_save)
+		if save_condition == 0 {
+			save(m)
+		}
+	}
+	print("Strong sweep step 2 complete")
+	counter222 = 0
+	for B := Bmax_win; B >= -Bmax_win; B -= Bstep_win {
+		B_ext = vector(B, 0, 0)
+		minimize()
+		tablesave()
+		counter222 = counter222 + 1
+		save_condition := remainder(counter222, often_save)
+		if save_condition == 0 {
+			save(m)
+			print(100 * counter222 / (2 * Bmax_win / (Bstep_win)))
+		}
+	}
+	print("B window sweep step 1 complete")
+	counter222 = 0
+	for B := -Bmax_win; B <= Bmax_win; B += Bstep_win {
+		B_ext = vector(B, 0, 0)
+		minimize()
+		tablesave()
+		counter222 = counter222 + 1
+		save_condition := remainder(counter222, often_save)
+		if save_condition == 0 {
+			save(m)
+			print(100 * counter222 / (Bmax_win / (Bstep_win)))
+		}
+	}
+	print("B window sweep step 2 complete")
+}
+//0
+//5.714285714285714
+//11.428571428571429
+//17.142857142857142
+//22.857142857142858
+//28.571428571428573
+//34.28571428571429
+//40.00000000000001
+//45.714285714285715
+//51.42857142857143
+//57.142857142857146
+//62.857142857142854
+//68.57142857142857
+//74.28571428571428
+//80
+//85.71428571428572
+//91.42857142857143
+//97.14285714285715
+//Strong sweep step 1 complete
+//Strong sweep step 2 complete
+//13.333333333333334
+//26.666666666666668
+//40
+//53.333333333333336
+//66.66666666666667
+//80
+//93.33333333333333
+//B window sweep step 1 complete
+//26.666666666666668
+//53.333333333333336
+//80
+//106.66666666666667
+//133.33333333333334
+//160
+//186.66666666666666
+//B window sweep step 2 complete
+HysteresisY_condition := 0
+if HysteresisY_condition == 1 {
+	often_save := 8
+	Bmax_strong := 100.0e-3
+	Bstep_strong := 10e-3
+	Bmax_win := 80.0e-3
+	Bstep_win := 2.0e-3
+	MinimizerStop = 1e-6
+	counter222 := 0
+	for B := 0.0; B <= Bmax_strong; B += Bstep_strong {
+		B_ext = vector(B, 0, 0)
+		minimize()
+		tablesave()
+		counter222 = counter222 + 1
+		save_condition := remainder(counter222, often_save)
+		if save_condition == 0 {
+			save(m)
+		}
+		print(100 * B / Bmax_strong)
+	}
+	print("Strong sweep step 1 complete")
+	counter222 = 0
+	for B := Bmax_strong; B >= Bmax_win; B -= Bstep_strong {
+		B_ext = vector(B, 0, 0)
+		minimize()
+		tablesave()
+		counter222 = counter222 + 1
+		save_condition := remainder(counter222, often_save)
+		if save_condition == 0 {
+			save(m)
+		}
+	}
+	print("Strong sweep step 2 complete")
+	counter222 = 0
+	for B := Bmax_win; B >= 0; B -= Bstep_win {
+		B_ext = vector(B, 0, 0)
+		minimize()
+		tablesave()
+		counter222 = counter222 + 1
+		save_condition := remainder(counter222, often_save)
+		if save_condition == 0 {
+			save(m)
+			print(100 * counter222 / (2 * Bmax_win / (Bstep_win)))
+		}
+	}
+	print("B window sweep step 1 complete")
+	counter222 = 0
+	for B := 0; B >= Bmax_win; B += Bstep_win {
+		B_ext = vector(0, B, 0)
+		minimize()
+		tablesave()
+		counter222 = counter222 + 1
+		save_condition := remainder(counter222, often_save)
+		if save_condition == 0 {
+			save(m)
+			print(100 * counter222 / (Bmax_win / (Bstep_win)))
+		}
+	}
+	print("B window y direction sweep step 1 complete")
+	counter222 = 0
+	for B := Bmax_win; B >= 0; B += -Bstep_win {
+		B_ext = vector(0, B, 0)
+		minimize()
+		tablesave()
+		counter222 = counter222 + 1
+		save_condition := remainder(counter222, often_save)
+		if save_condition == 0 {
+			save(m)
+			print(100 * counter222 / (Bmax_win / (Bstep_win)))
+		}
+	}
+	print("B window y direction sweep step 2 complete")
+}
+save(m)
+print(cellsize_x)
+//3.515625e-09
+xmin := -length_wire / 2
+xmax := length_wire / 2
+points_TOP_wire := Ceil(length_wire / cellsize_x)
+print(points_TOP_wire)
+//222
+size_stepAndChunk_x := length_wire / Ceil(length_wire/cellsize_x)
+print(size_stepAndChunk_x)
+//3.5135135135135137e-09
+for zzz := 0; zzz <= (1); zzz++ {
+	step_x = size_stepAndChunk_x * zzz
+	counter = counter + 1
+	length_left_part := step_x
+	length_right_part := length_wire - step_x - size_stepAndChunk_x
+	x_trans_left_part := xmin + step_x/2
+	x_trans_right_part := step_x/2 + size_stepAndChunk_x/2
+	x_trans_cross_section := xmin + step_x + size_stepAndChunk_x/2
+	c := Cylinder(wire_diameter, length_left_part).RotY(-90*pi/180).Transl(x_trans_left_part, y_trans_wire, 0)
+	d := Cylinder(wire_diameter, length_right_part).RotY(-90*pi/180).Transl(x_trans_right_part, y_trans_wire, 0)
+	cross_section := Cylinder(wire_diameter, size_stepAndChunk_x).RotY(-90*pi/180).Transl(x_trans_cross_section, y_trans_wire, 0)
+	DefRegion(4, c.sub(f).sub(g).sub(h).sub(i).sub(k).sub(l))
+	DefRegion(5, d.sub(f).sub(g).sub(h).sub(i).sub(k).sub(l))
+	DefRegion(6, cross_section.sub(f).sub(g).sub(h).sub(i).sub(k).sub(l))
+	save_condition := remainder(counter, 5)
+	if save_condition == 0 {
+	}
+	tablesave()
+	print(counter)
+}
+//1
+//2
+counter = 0
+ymin_LEG := wire_diameter / 2
+points_LEG_wire := Ceil(length_wire_LEG / cellsize_y)
+size_stepAndChunk_y := length_wire_LEG / Ceil(length_wire_LEG/cellsize_y)
+for yyy := 0; yyy <= (1); yyy++ {
+	step_y = ymin_LEG + size_stepAndChunk_y*yyy
+	counter = counter + 1
+	length_up_part := step_y - ymin_LEG
+	length_down_part := length_wire_LEG - step_y
+	y_trans_up_part := -ymin_LEG - size_stepAndChunk_y*yyy/2
+	y_trans_down_part := -length_wire_LEG/2 - step_y/2 - ymin_LEG
+	y_trans_cross_section := -ymin_LEG - step_y/2 - size_stepAndChunk_y*yyy/2
+	demag_region_up_LEG := Cylinder(wire_diameter, length_up_part).RotX(-90*pi/180).Transl(0, y_trans_up_part, 0)
+	demag_region_down_LEG := Cylinder(wire_diameter, length_down_part).RotX(-90*pi/180).Transl(0, y_trans_down_part, 0)
+	cross_section_LEG := Cylinder(wire_diameter, size_stepAndChunk_y).RotX(-90*pi/180).Transl(0, y_trans_cross_section, 0)
+	DefRegion(7, demag_region_up_LEG.sub(cutChunk2_LEG).sub(cutChunk3_LEG).sub(cutChunk4_LEG).sub(cutChunk5_LEG).sub(cutChunk6_LEG))
+	DefRegion(8, demag_region_down_LEG.sub(cutChunk2_LEG).sub(cutChunk3_LEG).sub(cutChunk4_LEG).sub(cutChunk5_LEG).sub(cutChunk6_LEG))
+	DefRegion(9, cross_section_LEG.sub(f).sub(cutChunk2_LEG).sub(cutChunk3_LEG).sub(cutChunk4_LEG).sub(cutChunk5_LEG).sub(cutChunk6_LEG))
+	save_condition := remainder(counter, 5)
+	if save_condition == 0 {
+	}
+	tablesave()
+	print(counter)
+}
+//1
+//2
+Time_elapsed := since(start).Seconds()
+print("Running time of", Floor(Time_elapsed/60), "minutes and ", remainder(Time_elapsed, 60), "seconds")
+//Running time of 35 minutes and  4.475986599999942 seconds
+print(cellsize_x)
+//3.515625e-09
+print(cellsize_y)
+//2.734375e-09
+print(cellsize_z)
+//5e-09

@@ -1,0 +1,343 @@
+//output directory: C:\Program Files\mumax3.9.1_windows\RunFiles\SingleWire_NoHysteresis_HeatMap_aroundWire.out/
+start := now()
+wire_diameter := 100e-9
+length_wire := 900e-9
+x_trans_system := 350e-9
+y_trans_system := 0
+x_trans_hex := cos(30*pi/180)*wire_diameter/2 + wire_diameter/4 + x_trans_system
+wire_cylinder := Cylinder(wire_diameter, length_wire).RotY(-90*pi/180).Transl(x_trans_system, y_trans_system, 0)
+f := Cuboid(wire_diameter/2, wire_diameter/2, length_wire).Transl(x_trans_hex, y_trans_system, 0).RotZ(-60 * pi / 180).RotY(-90 * pi / 180)
+g := Cuboid(wire_diameter/2, wire_diameter/2, length_wire).Transl(x_trans_hex, y_trans_system, 0).RotZ(-120 * pi / 180).RotY(-90 * pi / 180)
+h := Cuboid(wire_diameter/2, wire_diameter/2, length_wire).Transl(x_trans_hex, y_trans_system, 0).RotZ(-180 * pi / 180).RotY(-90 * pi / 180)
+i := Cuboid(wire_diameter/2, wire_diameter/2, length_wire).Transl(x_trans_hex, y_trans_system, 0).RotZ(-240 * pi / 180).RotY(-90 * pi / 180)
+k := Cuboid(wire_diameter/2, wire_diameter/2, length_wire).Transl(x_trans_hex, y_trans_system, 0).RotZ(-300 * pi / 180).RotY(-90 * pi / 180)
+l := Cuboid(wire_diameter/2, wire_diameter/2, length_wire).Transl(x_trans_hex, y_trans_system, 0).RotZ(-0 * pi / 180).RotY(-90 * pi / 180)
+device_distance := 40e-9
+zb := 100e-9
+xb_thin := 130e-9
+yb_thin := 1200e-9
+x_c_Far := 900e-9
+x_c_Close := 250e-9
+xb_thick := 250e-9
+yb_thick := 1200e-9
+x_c_thick_angle_extra := 0e-9
+x_c_thin_angle_extra := 0e-9
+mag_extra_y := 0
+ang_rot1 := 45
+x_ct_ang_thick := sin(ang_rot1*pi/180)*(yb_thick/2) + x_c_thick_angle_extra
+y_ct_ang_thick := cos(ang_rot1*pi/180)*(yb_thick/2) + sin(ang_rot1*pi/180)*xb_thick/2 + wire_diameter/2 + device_distance
+x_ct_ang_thin := sin(ang_rot1*pi/180)*(yb_thin/2) + x_c_thin_angle_extra
+y_ct_ang_thin := cos(ang_rot1*pi/180)*(yb_thin/2) + sin(ang_rot1*pi/180)*xb_thin/2 + wire_diameter/2 + device_distance
+mag1 := Cuboid(xb_thin, yb_thin, zb).RotZ(ang_rot1*pi/180).Transl((-x_ct_ang_thin - x_c_Close + x_trans_system + 00e-9), (y_ct_ang_thin + y_trans_system), 0)
+mag2 := Cuboid(xb_thick, yb_thick, zb).RotZ(ang_rot1*pi/180).Transl((-x_ct_ang_thick + x_c_Close + x_trans_system - 0e-9), (y_ct_ang_thick + y_trans_system + mag_extra_y), 0)
+mag3 := Cuboid(xb_thick, yb_thick, zb).RotZ(-ang_rot1*pi/180).Transl((-x_ct_ang_thick - x_c_Close + x_trans_system + 00e-9), (-y_ct_ang_thick + y_trans_system), 0)
+mag4 := Cuboid(xb_thin, yb_thin, zb).RotZ(-ang_rot1*pi/180).Transl((-x_ct_ang_thin + x_c_Close + x_trans_system + 0e-9), (-y_ct_ang_thin + y_trans_system), 0)
+extra_simBox_width_mags_x := 2 * sin(ang_rot1*pi/180) * (yb_thick / 2)
+extra_simBox_width_mags_y := 2 * max(yb_thin, yb_thick)
+Grid_X := length_wire + extra_simBox_width_mags_x + 80e-9
+N_x := 1024
+cellsize_x := Grid_X / N_x
+print(Grid_X)
+//1.8285281374238568e-06
+print(cellsize_x)
+//1.7856720092029852e-09
+Grid_Y := wire_diameter + extra_simBox_width_mags_y + 2*device_distance - 970e-9
+N_y := 512
+cellsize_y := Grid_Y / N_Y
+print(Grid_Y)
+//1.6099999999999998e-06
+print(cellsize_y)
+//3.1445312499999997e-09
+Grid_Z := wire_diameter
+N_z := 32
+cellsize_z := Grid_Z / N_z
+print(Grid_Z)
+//1e-07
+print(cellsize_z)
+//3.125e-09
+SetGridsize(N_x, N_y, N_z)
+SetCellsize(cellsize_x, cellsize_y, cellsize_z)
+SetGeom(wire_cylinder.sub(f).sub(g).sub(h).sub(i).sub(k).sub(l).add(mag1).add(mag2).add(mag3).add(mag4))
+saveas(geom, "SetUp")
+Msat_val := 1.44e6
+Aex_magnets_value := 3.0e-11
+K1_anisotropy_constant := 4.5e5
+K2_anisotropy_constant := 1.5e5
+damping_constant := 0.01
+External_Field_vector := vector(0, 0, 0)
+mag_region_number1 := 0
+mag_region_number2 := 0
+mag_region_number3 := 0
+mag_region_number4 := 0
+mag_region_number1_magnetization := randomMag()
+mag_region_number2_magnetization := randomMag()
+mag_region_number3_magnetization := randomMag()
+mag_region_number4_magnetization := randomMag()
+mag_region_number1_anisUVector := vector(-sin(ang_rot1*pi/180), cos(ang_rot1*pi/180), 0)
+mag_region_number2_anisUVector := vector(sin(ang_rot1*pi/180), -cos(ang_rot1*pi/180), 0)
+mag_region_number3_anisUVector := vector(sin(ang_rot1*pi/180), cos(ang_rot1*pi/180), 0)
+mag_region_number4_anisUVector := vector(sin(ang_rot1*pi/180), cos(ang_rot1*pi/180), 0)
+relax_condition := 0
+setInitialMagnetization_condition := 1
+if setInitialMagnetization_condition == 1 {
+	mag_region_number1_magnetization = Uniform(-sin(ang_rot1*pi/180), cos(ang_rot1*pi/180), 0)
+	mag_region_number2_magnetization = Uniform(sin(ang_rot1*pi/180), -cos(ang_rot1*pi/180), 0)
+	mag_region_number3_magnetization = Uniform(-sin(ang_rot1*pi/180), -cos(ang_rot1*pi/180), 0)
+	mag_region_number4_magnetization = Uniform(sin(ang_rot1*pi/180), cos(ang_rot1*pi/180), 0)
+}
+mag_region_number1 = 21
+DefRegion(mag_region_number1, mag1)
+m.SetRegion(mag_region_number1, mag_region_number1_magnetization)
+Msat.SetRegion(mag_region_number1, Msat_val)
+Aex.SetRegion(mag_region_number1, Aex_magnets_value)
+anisU.SetRegion(mag_region_number1, mag_region_number1_anisUVector)
+Ku1.SetRegion(mag_region_number1, K1_anisotropy_constant)
+Ku2.SetRegion(mag_region_number1, K2_anisotropy_constant)
+alpha.SetRegion(mag_region_number1, damping_constant)
+mag_region_number2 = 22
+DefRegion(mag_region_number2, mag2)
+m.SetRegion(mag_region_number2, mag_region_number2_magnetization)
+Msat.SetRegion(mag_region_number2, Msat_val)
+Aex.SetRegion(mag_region_number2, Aex_magnets_value)
+anisU.SetRegion(mag_region_number2, mag_region_number2_anisUVector)
+Ku1.SetRegion(mag_region_number2, K1_anisotropy_constant)
+Ku2.SetRegion(mag_region_number2, K2_anisotropy_constant)
+alpha.SetRegion(mag_region_number2, damping_constant)
+mag_region_number4 = 24
+DefRegion(mag_region_number4, mag4)
+m.SetRegion(mag_region_number4, mag_region_number4_magnetization)
+Msat.SetRegion(mag_region_number4, Msat_val)
+Aex.SetRegion(mag_region_number4, Aex_magnets_value)
+anisU.SetRegion(mag_region_number4, mag_region_number4_anisUVector)
+Ku1.SetRegion(mag_region_number4, K1_anisotropy_constant)
+Ku2.SetRegion(mag_region_number4, K2_anisotropy_constant)
+alpha.SetRegion(mag_region_number4, damping_constant)
+mag_region_number3 = 23
+DefRegion(mag_region_number3, mag3)
+m.SetRegion(mag_region_number3, mag_region_number3_magnetization)
+Msat.SetRegion(mag_region_number3, Msat_val)
+Aex.SetRegion(mag_region_number3, Aex_magnets_value)
+anisU.SetRegion(mag_region_number3, mag_region_number3_anisUVector)
+Ku1.SetRegion(mag_region_number3, K1_anisotropy_constant)
+Ku2.SetRegion(mag_region_number3, K2_anisotropy_constant)
+alpha.SetRegion(mag_region_number3, damping_constant)
+saveas(regions, "Magnets")
+saveas(anisU, "region_Uniaxial_anisotropy_direction")
+region_number_WIRE_TOP := 2
+DefRegion(region_number_WIRE_TOP, wire_cylinder.sub(f).sub(g).sub(h).sub(i).sub(k).sub(l))
+m.SetRegion(region_number_WIRE_TOP, Uniform(0, 0, 0))
+Msat.SetRegion(region_number_WIRE_TOP, 0)
+Aex.SetRegion(region_number_WIRE_TOP, 0)
+anisU.SetRegion(region_number_WIRE_TOP, vector(0, 0, 0))
+Ku1.SetRegion(region_number_WIRE_TOP, 0)
+Ku2.SetRegion(region_number_WIRE_TOP, 0)
+saveas(m, "Initial_magnetization")
+if relax_condition == 1 {
+	relax()
+	saveas(m, "Initial_Relaxed_magnetization")
+}
+count_min := 0e-9
+count_max := length_wire
+step_x := count_min
+step_y := wire_diameter
+counter := 0
+TableAdd(m.Region(mag_region_number1))
+TableAdd(m.Region(mag_region_number2))
+TableAdd(m.Region(mag_region_number3))
+TableAdd(B_ext)
+TableAdd(B_eff.Region(6))
+TableAddVar(step_x, "step_x", "No unit")
+often_save := 6
+Bmax_strong := 500.0e-3
+Bstep_strong := 10e-3
+Bmax_win_big := 450e-3
+Bmax_win_small := 340e-3
+Bstep_win := 1 * 3.0e-3
+MinimizerStop = 1e-6
+counter222 := 0
+BextLeftUp_Sweep_condition := 0
+if BextLeftUp_Sweep_condition == 1 {
+	counter222 = 0
+	for B := 0.0; B <= Bmax_win_big; B += Bstep_win {
+		B_ext = vector(-B*sin(ang_rot1*pi/180), B*cos(ang_rot1*pi/180), 0)
+		if relax_condition == 1 {
+			minimize()
+		}
+		tablesave()
+		counter222 = counter222 + 1
+		save_condition := remainder(counter222, often_save)
+		if save_condition == 0 {
+			save(m)
+			print(100 * counter222 / (Bmax_win_big / (Bstep_win)))
+		}
+	}
+	print("sweeps from B=0 to positve B_window_strong in -ve x direction and +ve y direction complete")
+	counter222 = 0
+	for B := Bmax_win_big; B >= 0; B -= Bstep_win {
+		B_ext = vector(-B*sin(ang_rot1*pi/180), B*cos(ang_rot1*pi/180), 0)
+		if relax_condition == 1 {
+			minimize()
+		}
+		tablesave()
+		counter222 = counter222 + 1
+		save_condition := remainder(counter222, often_save)
+		if save_condition == 0 {
+			save(m)
+			print(100 * counter222 / (Bmax_win_big / (Bstep_win)))
+		}
+	}
+	print("Back to 0 complete")
+}
+BextRightUp_Sweep_condition := 0
+if BextRightUp_Sweep_condition == 1 {
+	counter222 = 0
+	for B := 0.0; B <= Bmax_win_big; B += Bstep_win {
+		B_ext = vector(B*sin(ang_rot1*pi/180), B*cos(ang_rot1*pi/180), 0)
+		if relax_condition == 1 {
+			minimize()
+		}
+		tablesave()
+		counter222 = counter222 + 1
+		save_condition := remainder(counter222, often_save)
+		if save_condition == 0 {
+			save(m)
+			print(100 * counter222 / (Bmax_win_big / (Bstep_win)))
+		}
+	}
+	print("sweeps from B=0 to positve B_window_strong in +ve x direction and +ve y direction complete")
+	counter222 = 0
+	for B := Bmax_win_big; B >= 0; B -= Bstep_win {
+		B_ext = vector(B*sin(ang_rot1*pi/180), B*cos(ang_rot1*pi/180), 0)
+		if relax_condition == 1 {
+			minimize()
+		}
+		tablesave()
+		counter222 = counter222 + 1
+		save_condition := remainder(counter222, often_save)
+		if save_condition == 0 {
+			save(m)
+			print(100 * counter222 / (Bmax_win_big / (Bstep_win)))
+		}
+	}
+	print("Back to 0 complete")
+}
+BextRightDown_Sweep_condition := 0
+if BextRightDown_Sweep_condition == 1 {
+	counter222 = 0
+	for B := 0.0; B <= Bmax_win_small; B += Bstep_win {
+		B_ext = vector(B*sin(ang_rot1*pi/180), -B*cos(ang_rot1*pi/180), 0)
+		if relax_condition == 1 {
+			minimize()
+		}
+		tablesave()
+		counter222 = counter222 + 1
+		save_condition := remainder(counter222, often_save)
+		if save_condition == 0 {
+			save(m)
+			print(100 * counter222 / (Bmax_win_big / (Bstep_win)))
+		}
+	}
+	print("sweeps from B=0 to positve B_window_strong in +ve x direction and -ve y direction complete")
+	counter222 = 0
+	for B := Bmax_win_small; B >= 0; B -= Bstep_win {
+		B_ext = vector(B*sin(ang_rot1*pi/180), -B*cos(ang_rot1*pi/180), 0)
+		if relax_condition == 1 {
+			minimize()
+		}
+		tablesave()
+		counter222 = counter222 + 1
+		save_condition := remainder(counter222, often_save)
+		if save_condition == 0 {
+			save(m)
+			print(100 * counter222 / (Bmax_win_big / (Bstep_win)))
+		}
+	}
+	print("Back to 0 complete")
+}
+BextLeftDown_Sweep_condition := 0
+if BextLeftDown_Sweep_condition == 1 {
+	counter222 = 0
+	for B := 0.0; B <= Bmax_win_small; B += Bstep_win {
+		B_ext = vector(-B*sin(ang_rot1*pi/180), -B*cos(ang_rot1*pi/180), 0)
+		if relax_condition == 1 {
+			minimize()
+		}
+		tablesave()
+		counter222 = counter222 + 1
+		save_condition := remainder(counter222, often_save)
+		if save_condition == 0 {
+			save(m)
+			print(100 * counter222 / (Bmax_win_big / (Bstep_win)))
+		}
+	}
+	print("sweeps from B=0 to positve B_window_strong in -ve x direction and -ve y direction complete")
+	counter222 = 0
+	for B := Bmax_win_small; B >= 0; B -= Bstep_win {
+		B_ext = vector(-B*sin(ang_rot1*pi/180), -B*cos(ang_rot1*pi/180), 0)
+		if relax_condition == 1 {
+			minimize()
+		}
+		tablesave()
+		counter222 = counter222 + 1
+		save_condition := remainder(counter222, often_save)
+		if save_condition == 0 {
+			save(m)
+			print(100 * counter222 / (Bmax_win_big / (Bstep_win)))
+		}
+	}
+	print("Back to 0 complete")
+}
+save(B_eff)
+save(B_eff.Comp(0))
+save(B_eff.Comp(1))
+save(B_eff.Comp(2))
+field_measure_vol := Cuboid(400e-9, 400e-9, (100)*1e-9).Transl(x_trans_system+150e-9, 0, 0)
+saveas(regions, "Before_B_effMeasure_region")
+DefRegion(40, wire_cylinder.sub(f).sub(g).sub(h).sub(i).sub(k).sub(l))
+saveas(regions, "B_effMeasure_region1")
+save(B_eff.Region(40))
+save(B_eff.Comp(0).Region(40))
+save(B_eff.Comp(1).Region(40))
+save(B_eff.Comp(2).Region(40))
+DefRegion(41, field_measure_vol.sub(mag1).sub(mag2).sub(mag3).sub(mag4))
+save(B_eff.Region(41))
+saveas(regions, "B_effMeasure_region2")
+MuMaxCalc_Beff_condition := 0
+if MuMaxCalc_Beff_condition == 1 {
+	B_ext = vector(0, 0, 0)
+	xmin := -length_wire / 2
+	xmax := length_wire / 2
+	points_TOP_wire := Ceil(length_wire / cellsize_x)
+	print(points_TOP_wire)
+	size_stepAndChunk_x := length_wire / Ceil(length_wire/cellsize_x)
+	print(size_stepAndChunk_x)
+	for zzz := 0; zzz <= (points_TOP_wire - 1); zzz++ {
+		step_x = size_stepAndChunk_x * zzz
+		counter = counter + 1
+		length_left_part := step_x
+		length_right_part := length_wire - step_x - size_stepAndChunk_x
+		x_trans_left_part := xmin + step_x/2 + x_trans_system
+		x_trans_right_part := step_x/2 + size_stepAndChunk_x/2 + x_trans_system
+		x_trans_cross_section := xmin + step_x + size_stepAndChunk_x/2 + x_trans_system
+		c := Cylinder(wire_diameter, length_left_part).RotY(-90*pi/180).Transl((x_trans_left_part), y_trans_system, 0)
+		d := Cylinder(wire_diameter, length_right_part).RotY(-90*pi/180).Transl((x_trans_right_part), y_trans_system, 0)
+		cross_section := Cylinder(wire_diameter, size_stepAndChunk_x).RotY(-90*pi/180).Transl((x_trans_cross_section), y_trans_system, 0)
+		DefRegion(4, c.sub(f).sub(g).sub(h).sub(i).sub(k).sub(l))
+		DefRegion(5, d.sub(f).sub(g).sub(h).sub(i).sub(k).sub(l))
+		DefRegion(6, cross_section.sub(f).sub(g).sub(h).sub(i).sub(k).sub(l))
+		save_condition := remainder(counter, 5)
+		if save_condition == 0 {
+		}
+		tablesave()
+		print(counter)
+	}
+}
+Time_elapsed := since(start).Seconds()
+print("Running time of", Floor(Time_elapsed/60), "minutes and ", remainder(Time_elapsed, 60), "seconds")
+//Running time of 0 minutes and  26.2978505 seconds
+print(cellsize_x)
+//1.7856720092029852e-09
+print(cellsize_y)
+//3.1445312499999997e-09
+print(cellsize_z)
+//3.125e-09

@@ -1,0 +1,608 @@
+//Malcolm Jardie - 04_20 - Mumax3 code to run micromagentic simulations of micromagets on a hexagonal nanowire in T-Junction shape
+// The code defines the simulation boz makes hexagonal nanowire (by creating cyclinder and taking cuboid chunks out of it) in T-Junction shape,
+// add magnets in and then relaxes over this arranged to find minimum energy arrangement from the initial state put in.
+// The code then calcultes the demagentization field over little chunks of regions in the nanowire.
+
+
+start := now() //starting timer
+
+
+//////////////////////////////////// CREATING WIRE'S SHAPES ////////////////////////////////////%%%%%%%%
+
+//Dimensions of wire
+wire_diameter := 100e-9		 //how thick the wire is across diagonnal
+length_wire := 780e-9 //defining the wire
+
+					////////////////////////// TOP WIRE ///////////////////////////					
+//Shapes to create a hexagon out of a cylinder
+x_trans := cos(30*pi/180)*wire_diameter/2+wire_diameter/4 	//To make sure that sides of cuboids are attached to side of hexagon. I.e. edge of cuboid removed is on circle, not center
+y_trans_wire := 0//	 										//y-space between center of magnet and center of nanowire.
+
+
+wire_cylinder :=  Cylinder(wire_diameter, length_wire).RotY(-90*pi/180).Transl(0,y_trans_wire,0) // whole cylider of wire
+//Taking chunks out of initial wire cylider, by rotating cuboids to cut out 6 pieces of cylider to make hexagon
+f := Cuboid(wire_diameter/2, wire_diameter/2, length_wire).Transl(x_trans, y_trans_wire, 0).RotZ(-60*pi/180).RotY(-90*pi/180)
+g := Cuboid(wire_diameter/2, wire_diameter/2, length_wire).Transl(x_trans, y_trans_wire, 0).RotZ(-120*pi/180).RotY(-90*pi/180)
+h := Cuboid(wire_diameter/2, wire_diameter/2, length_wire).Transl(x_trans, y_trans_wire, 0).RotZ(-180*pi/180).RotY(-90*pi/180)
+i := Cuboid(wire_diameter/2, wire_diameter/2, length_wire).Transl(x_trans, y_trans_wire, 0).RotZ(-240*pi/180).RotY(-90*pi/180)
+k := Cuboid(wire_diameter/2, wire_diameter/2, length_wire).Transl(x_trans, y_trans_wire, 0).RotZ(-300*pi/180).RotY(-90*pi/180)
+l := Cuboid(wire_diameter/2, wire_diameter/2, length_wire).Transl(x_trans, y_trans_wire, 0).RotZ(-0*pi/180).RotY(-90*pi/180)
+
+
+
+					////////////////////////// LEG WIRE ///////////////////////////////	
+
+length_wire_LEG := length_wire/2 // should only be half the length of the top section (bit longer casue will strat from width/2 out)
+y_trans_wire_LEG := -(wire_diameter/2 + length_wire_LEG/2) //as starts in middle of simulation box
+//y_trans_wire_LEG := 1400e-9
+
+// define cylinder, rotate arounnd x-axis, then shift down. For cuts: deifine cuboid, push out in x-axis, rotate arounf z (so flat end is facing up/down, then rotate and shift to be in line with cylinder
+wire_LEG_cylinder :=  Cylinder(wire_diameter, length_wire_LEG).RotX(-90*pi/180).Transl(0,y_trans_wire_LEG,0) // whole cylider of wire to be relaxed over
+//Taking chunks out of initial wire cylider, by rotating cuboids to cut out 6 pieces of cylider to make hexagon
+cutChunk1_LEG := Cuboid(wire_diameter/2, wire_diameter/2, length_wire_LEG).Transl(x_trans, y_trans_wire, 0).RotZ(-30 *pi/180).RotX(-90*pi/180).Transl(0, y_trans_wire_LEG, 0)
+cutChunk2_LEG := Cuboid(wire_diameter/2, wire_diameter/2, length_wire_LEG).Transl(x_trans, y_trans_wire, 0).RotZ(-90 *pi/180).RotX(-90*pi/180).Transl(0, y_trans_wire_LEG, 0)
+cutChunk3_LEG := Cuboid(wire_diameter/2, wire_diameter/2, length_wire_LEG).Transl(x_trans, y_trans_wire, 0).RotZ(-150*pi/180).RotX(-90*pi/180).Transl(0, y_trans_wire_LEG, 0)
+cutChunk4_LEG := Cuboid(wire_diameter/2, wire_diameter/2, length_wire_LEG).Transl(x_trans, y_trans_wire, 0).RotZ(-210*pi/180).RotX(-90*pi/180).Transl(0, y_trans_wire_LEG, 0)
+cutChunk5_LEG := Cuboid(wire_diameter/2, wire_diameter/2, length_wire_LEG).Transl(x_trans, y_trans_wire, 0).RotZ(-270*pi/180).RotX(-90*pi/180).Transl(0, y_trans_wire_LEG, 0)
+cutChunk6_LEG := Cuboid(wire_diameter/2, wire_diameter/2, length_wire_LEG).Transl(x_trans, y_trans_wire, 0).RotZ(-330*pi/180).RotX(-90*pi/180).Transl(0, y_trans_wire_LEG, 0)
+
+
+//////////////////////////////////// MAGNETS dimensions and position ////////////////////////////////////%%%%%%%%
+
+device_distance := 40e-9 		     //small distance wire is from magnet
+zb := 100e-9       // this is height of magents
+
+//Dimensions of bar magnet - not used
+xb := 150e-9 //total width of magent
+yb := 2000e-9
+
+
+
+x_c := 200e-9
+x_c1 := 300e-9
+x_c2 := 700e-9
+
+ 
+y_c  := wire_diameter/2+device_distance + yb/2
+y_c1 := y_c
+y_c2 :=-y_c
+
+xb_thin := 150e-9
+yb_thin := 2500e-9
+x_ct1 := 800e-9
+y_c_thin := wire_diameter/2+device_distance + yb_thin/2
+
+xb_thick := 200e-9
+yb_thick := 1100e-9
+x_ct2 := 300e-9
+y_c_thick :=wire_diameter/2+device_distance + yb_thick/2
+
+//num_magnets := 1
+
+usemag4_condition := 0
+	//Placing magnets top row, left to right, bottom row, left to right. Do in 4 magnet chunks either side of wire
+	mag1 := Cuboid(xb_thin, yb_thin, zb).Transl(-x_ct1, y_c_thin, 0)
+	mag2 := Cuboid(xb_thick, yb_thick, zb).Transl(-x_ct2, y_c_thick, 0) 
+
+	mag3 := Cuboid(xb_thick, yb_thick, zb).Transl(-x_ct1, -y_c_thick, 0)
+	mag4 := Cuboid(xb_thin, yb_thin, zb).Transl(-x_ct2, -y_c_thin, 0)
+/////////////////
+usemag8_condition := 0 //1 for yes using 8 magnets. Only changes SetGeom
+	mag5 := Cuboid(xb_thick, yb_thick, zb).Transl(x_ct2, y_c_thick, 0)
+	mag6 := Cuboid(xb_thin, yb_thin, zb).Transl(x_ct1, y_c_thin, 0) 
+
+	mag7 := Cuboid(xb_thin, yb_thin, zb).Transl(x_ct2, -y_c_thin, 0)
+	mag8 := Cuboid(xb_thick, yb_thick, zb).Transl(x_ct1, -y_c_thick, 0)
+/////////////////
+usemag_LEG_condition := 0 //1 for yes using leg magnets. Only changes SetGeom
+
+	mag9 := Cuboid(yb_thick, xb_thick, zb).Transl(-y_c_thick, -x_ct2, 0)
+	mag10 := Cuboid(yb_thin, xb_thin, zb).Transl(-y_c_thin, -x_ct1, 0) 
+
+	mag11 := Cuboid(yb_thin, xb_thin, zb).Transl(y_c_thin, -x_ct2, 0)
+	mag12 := Cuboid(yb_thick, xb_thick, zb).Transl(y_c_thick, -x_ct1, 0)
+///////////////////////////////////////////// STAR MAGNETS
+usemag_STAR_condition := 1 //1 for yes using leg magnets. Only changes SetGeom
+
+size_increase := 1
+
+	xb_STAR_L := 1500e-9
+	yb_STAR_L := size_increase*130e-9
+	x_ct_STAR_L := xb_STAR_L/2 + length_wire/2 + device_distance
+	
+	xb_STAR_R := 1500e-9
+	yb_STAR_R := size_increase*230e-9
+	x_ct_STAR_R := xb_STAR_R/2 + length_wire/2 + device_distance
+	
+	xb_STAR_LEG := size_increase*130e-9
+	yb_STAR_LEG := 1500e-9
+	y_ct_STAR_LEG := yb_STAR_LEG/2 + length_wire/2 + wire_diameter/2 + device_distance 
+	
+	mag13 := Cuboid(xb_STAR_L, yb_STAR_L, zb).Transl(-x_ct_STAR_L, 0, 0)
+	mag14 := Cuboid(xb_STAR_R, yb_STAR_R, zb).Transl(x_ct_STAR_R, 0, 0) 
+
+	mag15 := Cuboid(xb_STAR_LEG, yb_STAR_LEG, zb).Transl(0, -y_ct_STAR_LEG, 0)
+////////// (3 big magents defined in previous section)
+	
+	// Smaller magnets
+	extra_dsitannce_forSmall_Magents := 0 //900e-9 // just pushes small magents out more if I dont want them to affect system
+	
+	xb_middle := 0*size_increase*150e-9
+	yb_middle := 1500e-9 
+	x_ct_middle := 0
+	y_ct_middle := yb_middle/2 + wire_diameter/2 + 0.5*device_distance + extra_dsitannce_forSmall_Magents
+	
+	mag16 := Cuboid(xb_middle, yb_middle, zb).Transl(x_ct_middle, y_ct_middle, 0)
+	
+	xb_ang := size_increase*150e-9 //angled magnets
+	yb_ang := 1500e-9 
+	ang_rot1 := 45 //angle of rotation for two magnets in middle
+	x_ct_ang := extra_dsitannce_forSmall_Magents + sin(ang_rot1 *pi/180)*(yb_ang/2) + cos(ang_rot1 *pi/180)*xb_ang/2 + wire_diameter/2 + device_distance //this puts top right edge of mag on wire + extra
+	y_ct_ang := extra_dsitannce_forSmall_Magents + cos(ang_rot1 *pi/180)*(yb_ang/2) + sin(ang_rot1 *pi/180)*xb_ang/2 + wire_diameter/2 + device_distance  //this puts top left edge of mag on wire + extra
+
+
+	
+	mag17 := Cuboid(xb_ang, yb_ang, zb).RotZ(-ang_rot1 *pi/180).Transl(-x_ct_ang, -y_ct_ang, 0) //left one
+	mag18 := Cuboid(xb_ang, yb_ang, zb).RotZ( ang_rot1 *pi/180).Transl( x_ct_ang, -y_ct_ang, 0)
+	
+
+
+//////////////////////////////////// SIMULATION BOX DIMESIONS AND PARTITIONING ////////////////////////////////////%%%%%%%%
+// The size of the simulation box depends on the size of the magnets
+
+
+extra_simBox_width_mags_x := max(xb_STAR_R, xb_STAR_L)  // this is the extar width the sim box size needs to be due to things like magnets in the x direction. Picking out largest magnet so they both definetely fit as simulation box is defined symetterixall (everything is in centered arounf middle)
+extra_simBox_width_mags_y := yb_STAR_LEG // this is the extar width the sim box size needs to be due to things like magnets in the y direction
+
+
+//want number of # grid points to define cell size for compuational speed. Power of 2 is best
+
+Grid_X 	 	:= 2*(length_wire/2 + extra_simBox_width_mags_x + device_distance)			//length of x direction (wire + magnets)
+//N_x			:= 512
+N_x			:= 512	 					//number of chunks Grid_X direction is split up into
+cellsize_x  := Grid_X/N_x 			//THIS is size of x direction chunks
+
+Grid_Y 	 	:= length_wire + 2*(extra_simBox_width_mags_y + wire_diameter + device_distance)	 //actual length y direction needs to be. 2 long magnet lengths + wire width + extra distance. wire_length isnt multiplied by 2 as 
+//N_y := 512			
+N_y := 256		 
+cellsize_y := Grid_Y/N_Y				//y cell size
+
+Grid_Z 	 	:= wire_diameter //actual length z direction needs to be. Assuming wire width is the biggest of z widths (wider than magnet)
+//N_z := 16 
+N_z := 16							// 
+cellsize_z := Grid_Z/N_z				//z cell size
+
+
+SetGridsize(N_x, N_y, N_z)
+SetCellsize(cellsize_x, cellsize_y, cellsize_z)
+
+//////////////////////////////////// SETTING GEOMETRY ////////////////////////////////////%%%%%%%%
+//// This is where we chose what magnets will be used in the simulation by "add()" them in
+// NOTE: Dont add magenets first, this means that if there is any overlap between the part of the wire we delete, this will delete the magnets as well.  
+        
+		SetGeom(mag1.add(mag2).add(mag3).add(mag4).add(wire_cylinder).sub(f).sub(g).sub(h).sub(i).sub(k).sub(l)) //4 magnets
+		if usemag8_condition == 1 {
+		SetGeom(wire_cylinder.sub(f).sub(g).sub(h).sub(i).sub(k).sub(l).add(wire_LEG_cylinder).sub(cutChunk1_LEG).sub(cutChunk2_LEG).sub(cutChunk3_LEG).sub(cutChunk4_LEG).sub(cutChunk5_LEG).sub(cutChunk6_LEG).add(mag1).add(mag2).add(mag3).add(mag4).add(mag5).add(mag6).add(mag7).add(mag8)) //8 magnets
+		//SetGeom(wire_cylinder.sub(f).sub(g).sub(h).sub(i).sub(k).sub(l).add(wire_LEG_cylinder).add(mag1).add(mag2).add(mag3).add(mag4).add(mag5).add(mag6).add(mag7).add(mag8)) //8 magnets
+		}
+		if usemag_LEG_condition == 1 {
+		//SetGeom(wire_cylinder.sub(f).sub(g).sub(h).sub(i).sub(k).sub(l).add(wire_LEG_cylinder).sub(cutChunk1_LEG).sub(cutChunk2_LEG).sub(cutChunk3_LEG).sub(cutChunk4_LEG).sub(cutChunk5_LEG).sub(cutChunk6_LEG).add(mag1).add(mag2).add(mag3).add(mag4).add(mag5).add(mag6).add(mag7).add(mag8).add(mag9).add(mag10).add(mag11).add(mag12)) //12 magnets
+		SetGeom(wire_cylinder.sub(f).sub(g).sub(h).sub(i).sub(k).sub(l).add(wire_LEG_cylinder).sub(cutChunk1_LEG).sub(cutChunk2_LEG).sub(cutChunk3_LEG).sub(cutChunk4_LEG).sub(cutChunk5_LEG).sub(cutChunk6_LEG).add(mag9).add(mag10).add(mag11).add(mag12)) //12 magnets
+		}
+		if usemag_STAR_condition == 1 {
+		//SetGeom(wire_cylinder.sub(f).sub(g).sub(h).sub(i).sub(k).sub(l).add(wire_LEG_cylinder).sub(cutChunk1_LEG).sub(cutChunk2_LEG).sub(cutChunk3_LEG).sub(cutChunk4_LEG).sub(cutChunk5_LEG).sub(cutChunk6_LEG).add(mag13).add(mag14).add(mag15).add(mag16)) //8 magnets
+		SetGeom(wire_cylinder.sub(f).sub(g).sub(h).sub(i).sub(k).sub(l).add(wire_LEG_cylinder).sub(cutChunk1_LEG).sub(cutChunk2_LEG).sub(cutChunk3_LEG).sub(cutChunk4_LEG).sub(cutChunk5_LEG).sub(cutChunk6_LEG).add(mag13).add(mag14).add(mag15).add(mag16).add(mag17).add(mag18)) //8 magnets
+		}
+		saveas(geom, "SetUp")
+
+	//for vvv := 1; vvv <= 1; vvv += 1 {
+   	//file := sprintf("mag%01d", vvv)
+   	//print(file)
+    //m.LoadFile(file)
+  	//tablesave()
+//}
+
+
+//////////////////////////////////// set ferromagnets REGION properties ////////////////////////////////////%%%%%%%%
+				/////////////////////////// Magnets ///////////////////
+
+//for mmm:=1; mmm<(num_magnets+1); mmm++{
+//print("mmm")
+	//region_number := (mmm+19)
+	
+	/////// Magent Parameters ///////////
+	
+	// saturation value (maximum magnetization with applied field - [A/m]) 
+	Msat_val := 1.44e6 // Cobalt
+	//Msat_val := 1.75e6 // Iron
+	
+	//exchange_stiffness (explantion - [J/m])
+	Aex_magnets_value := 3.0e-11 //Cobalt
+	//Aex_magnets_value := 2.1e-11 //Iron    
+	
+	//Anisotropy constants (a measure of how different the longitudinal magnetization is to the transverse mag compared to the crystals prefered axes - [J/m^3])
+	// cubic and hexagonal crytals (Fe and Cobalt) materials have two values
+	K1_anisotropy_constant := 4.5e5 //Cobalt
+	//K1_anisotropy_constant := 4.7e4 //Iron   
+	K2_anisotropy_constant := 1.5e5 //Cobalt
+	//K2_anisotropy_constant := 2.0e4 //Iron
+	
+	//Landau-Lifshitz damping constant - alpha (reveals the dissipation speed in the ferromagnetic material - [no unit])
+	//damping_constant := 0.01 //Cobalt
+	damping_constant := 0.01 //Iron   can be 0.1 to 0.01 for Fe, Co, Ni metals or alloys
+	
+		//////////////////////////////////////
+		
+		External_Field_vector := vector(0, 0, 0) // initializing external magnetic field to be zero
+		
+
+////////////////////////////////////////////////////////////////////////////////////////// Current magnets
+		// %%%%%%%%%%%%%%% STAR MAGNETS %%%%%%%%%%%%%% 
+				if usemag_STAR_condition == 1 {
+				mag_region_number13 := 32
+		DefRegion(mag_region_number13, mag13)
+        m.SetRegion(mag_region_number13, Uniform(-1,0,0))
+        Msat.SetRegion(mag_region_number13, Msat_val)
+        Aex.SetRegion(mag_region_number13, Aex_magnets_value)
+        anisU.SetRegion(mag_region_number13, vector(-1, 0, 0))
+        Ku1.SetRegion(mag_region_number13, K1_anisotropy_constant)
+        Ku2.SetRegion(mag_region_number13, K2_anisotropy_constant)
+        alpha.SetRegion(mag_region_number13, damping_constant)
+		
+				mag_region_number14 := 33
+		DefRegion(mag_region_number14, mag14)
+        m.SetRegion(mag_region_number14, Uniform(1,0,0))
+        Msat.SetRegion(mag_region_number14, Msat_val)
+        Aex.SetRegion(mag_region_number14, Aex_magnets_value)
+        anisU.SetRegion(mag_region_number14, vector(1, 0, 0))
+        Ku1.SetRegion(mag_region_number14, K1_anisotropy_constant)
+        Ku2.SetRegion(mag_region_number14, K2_anisotropy_constant)
+        alpha.SetRegion(mag_region_number14, damping_constant)
+		
+				mag_region_number15 := 34
+		DefRegion(mag_region_number15, mag15)
+        m.SetRegion(mag_region_number15, Uniform(0,-1,0))
+        Msat.SetRegion(mag_region_number15, Msat_val)
+        Aex.SetRegion(mag_region_number15, Aex_magnets_value)
+        anisU.SetRegion(mag_region_number15, vector(0, -1, 0))
+        Ku1.SetRegion(mag_region_number15, K1_anisotropy_constant)
+        Ku2.SetRegion(mag_region_number15, K2_anisotropy_constant)
+        alpha.SetRegion(mag_region_number15, damping_constant)
+		
+	
+		//////////////// Extra magnets ////////////////
+		// magnetization directions. So that the initial magnetization is aligned with the direction of the magnet
+		x_component := sin(ang_rot1 *pi/180)
+		y_component := cos(ang_rot1 *pi/180)
+		
+				
+	
+		// different traingle magnets in middle configs
+		// This is also assigns the external magennt field
+		UUU := 0
+		UUD := 0
+		DUD := 0
+		DDD := 0
+		/////
+		DDU := 0
+		UDU := 0
+		DUU := 1
+		UDD := 0
+		
+		//defining initial magnetization
+		Middle_mag_intitial_magnetization  := Uniform(0, 0, 0)
+		DownLeft_mag_intitial_magnetization  := Uniform(0, 0, 0)
+		DownRight_mag_intitial_magnetization := Uniform(0, 0, 0)
+		
+		ang_rot_Bext := 45 // angle of external field
+		mag_Bext := 0.15
+		
+		if UUU == 1 { // could couple Top right and Leg
+			Middle_mag_intitial_magnetization  = Uniform(0, 1, 0)
+			DownLeft_mag_intitial_magnetization  = Uniform(x_component, y_component, 0)
+			DownRight_mag_intitial_magnetization = Uniform(-x_component, y_component, 0)
+			External_Field_vector = vector(mag_Bext, 0, 0)
+		}
+		if UUD == 1 {
+			Middle_mag_intitial_magnetization  = Uniform(0, 1, 0)
+			DownLeft_mag_intitial_magnetization  = Uniform(x_component, y_component, 0)
+			DownRight_mag_intitial_magnetization = Uniform(x_component, -y_component, 0)
+			External_Field_vector = vector(0, -mag_Bext, 0)
+		}
+		if DUD == 1 {
+			Middle_mag_intitial_magnetization  = Uniform(0, -1, 0)
+			DownLeft_mag_intitial_magnetization  = Uniform(x_component, y_component, 0)
+			DownRight_mag_intitial_magnetization = Uniform(x_component, -y_component, 0)
+			External_Field_vector = vector(0, 0, 0)
+		}
+		if DDD == 1 { //no coupling due to strong y field which is stronger in center
+			Middle_mag_intitial_magnetization  = Uniform(0, -1, 0)
+			DownLeft_mag_intitial_magnetization  = Uniform(-x_component, -y_component, 0)
+			DownRight_mag_intitial_magnetization = Uniform(x_component, -y_component, 0)
+			External_Field_vector = vector(0, -mag_Bext, 0)
+		}
+		/////
+		if DDU == 1 {
+			Middle_mag_intitial_magnetization  = Uniform(0, -1, 0)
+			DownLeft_mag_intitial_magnetization  = Uniform(-x_component, -y_component, 0)
+			DownRight_mag_intitial_magnetization = Uniform(-x_component, y_component, 0)
+		}
+		if UDU == 1 { // could couple Top left and Leg
+			Middle_mag_intitial_magnetization  = Uniform(0, 1, 0)
+			DownLeft_mag_intitial_magnetization  = Uniform(-x_component, -y_component, 0)
+			DownRight_mag_intitial_magnetization = Uniform(-x_component, y_component, 0)
+			External_Field_vector = vector(-mag_Bext*sin(ang_rot_Bext *pi/180), -mag_Bext*cos(ang_rot_Bext *pi/180), 0)
+		}
+		if DUU == 1 {
+			Middle_mag_intitial_magnetization  = Uniform(0, -1, 0)
+			DownLeft_mag_intitial_magnetization  = Uniform(x_component, y_component, 0)
+			DownRight_mag_intitial_magnetization = Uniform(-x_component, y_component, 0)
+		}
+		if UDD == 1 { // could couple Top right and Leg
+			Middle_mag_intitial_magnetization  = Uniform(0, 1, 0)
+			DownLeft_mag_intitial_magnetization  = Uniform(-x_component, -y_component, 0)
+			DownRight_mag_intitial_magnetization = Uniform(x_component, -y_component, 0)
+			External_Field_vector = vector(mag_Bext*sin(ang_rot_Bext *pi/180), -mag_Bext*cos(ang_rot_Bext *pi/180), 0)
+		}
+		
+		
+				mag_region_number16 := 35
+		DefRegion(mag_region_number16, mag16)
+        m.SetRegion(mag_region_number16, Middle_mag_intitial_magnetization)
+        Msat.SetRegion(mag_region_number16, Msat_val)
+        Aex.SetRegion(mag_region_number16, Aex_magnets_value)
+        anisU.SetRegion(mag_region_number16, vector(0, 1, 0))
+        Ku1.SetRegion(mag_region_number16, K1_anisotropy_constant)
+        Ku2.SetRegion(mag_region_number16, K2_anisotropy_constant)
+        alpha.SetRegion(mag_region_number16, damping_constant)
+		
+				mag_region_number17 := 36
+		DefRegion(mag_region_number17, mag17)
+        m.SetRegion(mag_region_number17, DownLeft_mag_intitial_magnetization)
+        Msat.SetRegion(mag_region_number17, Msat_val)
+        Aex.SetRegion(mag_region_number17, Aex_magnets_value)
+        anisU.SetRegion(mag_region_number17, vector(1/sqrt(2), 1/sqrt(2), 0))
+        Ku1.SetRegion(mag_region_number17, K1_anisotropy_constant)
+        Ku2.SetRegion(mag_region_number17, K2_anisotropy_constant)
+        alpha.SetRegion(mag_region_number17, damping_constant)
+		
+				mag_region_number18 := 37
+		DefRegion(mag_region_number18, mag18)
+        m.SetRegion(mag_region_number18, DownRight_mag_intitial_magnetization)
+        Msat.SetRegion(mag_region_number18, Msat_val)
+        Aex.SetRegion(mag_region_number18, Aex_magnets_value)
+        anisU.SetRegion(mag_region_number18, vector(-1/sqrt(2), 1/sqrt(2), 0))
+        Ku1.SetRegion(mag_region_number18, K1_anisotropy_constant)
+        Ku2.SetRegion(mag_region_number18, K2_anisotropy_constant)
+        alpha.SetRegion(mag_region_number18, damping_constant)
+		}
+		
+//}
+
+saveas(regions, "Magnets") //save only magent regions
+saveas(anisU, "region_Uniaxial_anisotropy_direction") //save Uniaxial anisotropy directions of magnets
+
+
+
+
+						/////////////////////////// NANOWIRE ////////////////////////
+
+		
+			//Whole TOP nanowire
+			region_number_WIRE_TOP := 2
+        DefRegion(region_number_WIRE_TOP, wire_cylinder.sub(f).sub(g).sub(h).sub(i).sub(k).sub(l))
+        m.SetRegion(region_number_WIRE_TOP, Uniform(0,0,0))
+        Msat.SetRegion(region_number_WIRE_TOP, 0)
+        Aex.SetRegion(region_number_WIRE_TOP, 0)
+        anisU.SetRegion(region_number_WIRE_TOP, vector(0, 0, 0))
+        Ku1.SetRegion(region_number_WIRE_TOP, 0)
+        Ku2.SetRegion(region_number_WIRE_TOP, 0)
+		
+				//Whole LEG nanowire
+				region_number_WIRE_LEG := 3
+        DefRegion(region_number_WIRE_LEG, wire_LEG_cylinder.sub(cutChunk1_LEG).sub(cutChunk2_LEG).sub(cutChunk3_LEG).sub(cutChunk4_LEG).sub(cutChunk5_LEG).sub(cutChunk6_LEG))
+        m.SetRegion(region_number_WIRE_LEG, Uniform(0,0,0))
+        Msat.SetRegion(region_number_WIRE_LEG, 0)
+        Aex.SetRegion(region_number_WIRE_LEG, 0)
+        anisU.SetRegion(region_number_WIRE_LEG, vector(0, 0, 0))
+        Ku1.SetRegion(region_number_WIRE_LEG, 0)
+        Ku2.SetRegion(region_number_WIRE_LEG, 0)
+
+//////////////////////////////////// RELAX ////////////////////////////////////
+
+	saveas(m, "Initial magnetization")
+		relax_condition := 0 // determines if the system relaxes or not
+	if relax_condition == 1 {
+		relax() // finding minimum energy state
+		saveas(m, "Relaxed magnetization") //save magnetization state of magnnet after relaxtion
+	}
+	
+
+//////////////////////////////////// calculating DEMAGNETIZATION FIELD ////////////////////////////////////%%%%%%%%
+
+
+
+//width_cross_section := cellsize_x
+count_min := 0e-9
+count_max := length_wire //
+//print(count_max)
+step_x := count_min 	//setting initial value
+step_y := wire_diameter 	//setting initial value (for y direction starts at wire width out)
+counter := 0 			//setting initial value
+
+//////////////////////////////////// TABLE ADD DATA ////////////////////////////////////%%%%%%%%
+
+TableAdd(B_eff.Region(6)) //B_demag calculates the relaxed steady state magnetic field averaged over a given region
+TableAdd(B_eff.Region(9)) //B_demag calculates the relaxed steady state magnetic field averaged over a given region
+TableAddVar(step_x, "step_x", "No unit") //positions of the left edge of the region the magnetic field is avergaed over
+TableAddVar(step_y, "step_y", "No unit")
+
+// B_eff calculates the total field
+
+						///////////////////////// TOP ////////////////////////
+						
+	    Bmax  := 0
+		External_Field_vector = vector(0, 0, 0)
+        B_ext = External_Field_vector
+			
+						
+print(cellsize_x)
+xmin := -length_wire/2 //as the 0 of the wire is defined in the middle of the simulation box
+xmax := length_wire/2
+
+//zzz is going 0,10,20, or steps of cellsize x. We avergae magnetic field over cellsize x chunks
+// wire is broken up into number of points such that the size of each chunk is always a little bit smaller than cellsize_x. It starts and ends at start and end of wire
+	points_TOP_wire := Ceil(length_wire/cellsize_x)	// number of points leg wire is broken up into. Round up so chunk we average over is always a little bit smaller
+	print(points_TOP_wire)
+
+	size_stepAndChunk_x := length_wire/Ceil(length_wire/cellsize_x) // wire is broken up into number of chunks, this is the size
+	print(size_stepAndChunk_x)
+	
+for zzz:=0; zzz<=(points_TOP_wire-1); zzz++{ //zzz goes from 0 to points_TOP_wire -1 because it has a width so we dont need to move the averaging chunk points_TOP_wire time
+        step_x = size_stepAndChunk_x*zzz //converts our index for loop to width we need for each section
+		counter = counter + 1 //countig how many loops we have ran
+		//print(zzz)
+		//print(100*zzz/count_max) //precent complete
+		length_left_part := step_x //bit of nanowire to left of averaging over chunk
+        length_right_part := length_wire-step_x-size_stepAndChunk_x //bit of nanowire to right of averaging over chunk
+        x_trans_left_part := xmin+step_x/2
+        x_trans_right_part := step_x/2+size_stepAndChunk_x/2	
+        x_trans_cross_section := xmin+step_x+size_stepAndChunk_x/2
+        c := Cylinder(wire_diameter, length_left_part).RotY(-90*pi/180).Transl(x_trans_left_part,y_trans_wire,0)
+        d := Cylinder(wire_diameter, length_right_part).RotY(-90*pi/180).Transl(x_trans_right_part,y_trans_wire,0)
+        cross_section := Cylinder(wire_diameter, size_stepAndChunk_x).RotY(-90*pi/180).Transl(x_trans_cross_section,y_trans_wire,0)
+
+
+
+
+        //Left part of nanowire
+        DefRegion(4, c.sub(f).sub(g).sub(h).sub(i).sub(k).sub(l))
+        //m.SetRegion(4, Uniform(0,0,0))
+        //Msat.SetRegion(4, 0)
+        //Aex.SetRegion(4, 0)
+        //anisU.SetRegion(4, vector(0, 0, 0))
+        //Ku1.SetRegion(4, 0)
+        //Ku2.SetRegion(4, 0)
+
+        //Right part of nanowire
+        DefRegion(5, d.sub(f).sub(g).sub(h).sub(i).sub(k).sub(l))
+        //m.SetRegion(5, Uniform(0,0,0))
+        //Msat.SetRegion(5, 0)
+        //Aex.SetRegion(5, 0)
+        //anisU.SetRegion(5, vector(0, 0, 0))
+        //Ku1.SetRegion(5, 0)
+        //Ku2.SetRegion(5, 0)
+
+        //Center part of nanowire (where we average over)
+        DefRegion(6, cross_section.sub(f).sub(g).sub(h).sub(i).sub(k).sub(l))
+        //m.SetRegion(6, Uniform(0,0,0))
+        //Msat.SetRegion(6, 0)
+        //Aex.SetRegion(6, 0)
+        //anisU.SetRegion(6, vector(0, 0, 0))
+        //Ku1.SetRegion(6, 0)
+        //Ku2.SetRegion(6, 0)
+
+        //Temp = 0.04
+        //Bmax  := 0.075
+        //B_ext = vector(0, Bmax, 0)
+		
+		save_condition := remainder(counter, 5) //after num loops the if statement will act (uses when remainder is 0
+		if save_condition == 0 {
+			save(regions)
+		}
+		
+		
+        
+
+        //MinimizerStop = 1e-6
+
+
+        //minimize()  
+        tablesave()
+        //save(m)
+        //save(B_demag)
+		print(counter)
+}
+
+						///////////////////////// LEG ////////////////////////
+		counter = 0		
+	ymin_LEG := wire_diameter/2 //where we start taking data from
+	points_LEG_wire := Ceil(length_wire_LEG/cellsize_y)	// number of points leg wire is broken up into. Round up, last region will be a bit beyond the defined wire			
+	//print(points_LEG_wire)
+	//print(length_wire_LEG)
+	//print(cellsize_y)
+	size_stepAndChunk_y := length_wire_LEG/Ceil(length_wire_LEG/cellsize_y) // wire is broken up into number of chunks, this is the size
+
+	
+	for yyy:=0; yyy<=(points_LEG_wire-1); yyy++{ 			//yyy goes from 0 to to points_LEG_wire - 1
+	
+        step_y = ymin_LEG +size_stepAndChunk_y*yyy //converts our index for loop to width we need for each section. Need to start the width of the wire down
+		counter = counter + 1 //countig how many loops we have ran
+		//print(zzz)
+		//print(100*zzz/count_max) //precent complete
+		
+		length_up_part := step_y - ymin_LEG //starts at 0
+        length_down_part := length_wire_LEG - step_y //lower part is what is left from wire after up part and current section is taken away
+        
+		y_trans_up_part := -ymin_LEG - size_stepAndChunk_y*yyy/2 // (step_y/2) has over 2 as this cylinder is growing
+        y_trans_down_part := -length_wire_LEG/2 - step_y/2 - ymin_LEG	
+        y_trans_cross_section := -ymin_LEG - step_y/2 - size_stepAndChunk_y*yyy/2
+		
+        demag_region_up_LEG   := Cylinder(wire_diameter, length_up_part).RotX(-90*pi/180).Transl(0,y_trans_up_part,0)
+        demag_region_down_LEG := Cylinder(wire_diameter, length_down_part).RotX(-90*pi/180).Transl(0,y_trans_down_part,0)
+        cross_section_LEG := Cylinder(wire_diameter, size_stepAndChunk_y).RotX(-90*pi/180).Transl(0,y_trans_cross_section,0)
+
+		// neeed cylinder of width size_stepAndChunk_y being moved down
+
+
+        //Left part of nanowire
+        DefRegion(7, demag_region_up_LEG.sub(cutChunk2_LEG).sub(cutChunk3_LEG).sub(cutChunk4_LEG).sub(cutChunk5_LEG).sub(cutChunk6_LEG))
+        //m.SetRegion(7, Uniform(0,0,0))
+        //Msat.SetRegion(7, 0)
+        //Aex.SetRegion(7, 0)
+        //anisU.SetRegion(7, vector(0, 0, 0))
+        //Ku1.SetRegion(7, 0)
+        //Ku2.SetRegion(7, 0)
+
+        //Right part of nanowire
+        DefRegion(8, demag_region_down_LEG.sub(cutChunk2_LEG).sub(cutChunk3_LEG).sub(cutChunk4_LEG).sub(cutChunk5_LEG).sub(cutChunk6_LEG))
+        //m.SetRegion(8, Uniform(0,0,0))
+        //Msat.SetRegion(8, 0)
+        //Aex.SetRegion(8, 0)
+        //anisU.SetRegion(8, vector(0, 0, 0))
+        //Ku1.SetRegion(8, 0)
+        //Ku2.SetRegion(8, 0)
+
+        //Center part of nanowire (where we average over)
+        DefRegion(9, cross_section_LEG.sub(f).sub(cutChunk2_LEG).sub(cutChunk3_LEG).sub(cutChunk4_LEG).sub(cutChunk5_LEG).sub(cutChunk6_LEG))
+        //m.SetRegion(9, Uniform(0,0,0))
+        //Msat.SetRegion(9, 0)
+        //Aex.SetRegion(9, 0)
+        //anisU.SetRegion(9, vector(0, 0, 0))
+        //Ku1.SetRegion(9, 0)
+        //Ku2.SetRegion(9, 0)
+
+        //Temp = 0.04
+
+		
+		save_condition := remainder(counter, 5) //after num loops the if statement will act (uses when remainder is 0
+		if save_condition == 0 {
+			save(regions)
+		}
+		 
+        tablesave()
+        //save(m)
+        //save(B_demag)
+		print(counter)
+}
+
+		
+						
+
+//print(counter)
+
+Time_elapsed := since(start).Seconds() //stopping timer
+// Floor to get number of minutes from seconds and remainder finds number of seconds after the minute
+print("Running time of", Floor(Time_elapsed/60), "minutes and ", remainder(Time_elapsed, 60), "seconds" )
+//print(Time_elapsed)
+// if it goes above half way (30 seconds) then it displays a neagtive number for some reason
